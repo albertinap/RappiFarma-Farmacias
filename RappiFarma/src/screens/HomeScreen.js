@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
-import OpenCameraButton from '../components/OpenCameraButton'; // 👈 tu botón cámara
-import ButtonPrimary from '../components/ButtonPrimary'; // 👈 tu botón genérico
+import OpenCameraButton from '../src/components/OpenCameraButton'; // 👈 tu botón cámara
+import ButtonPrimary from '../src/components/ButtonPrimary'; // 👈 tu botón genérico
 import { theme } from '../styles/theme';
 
 

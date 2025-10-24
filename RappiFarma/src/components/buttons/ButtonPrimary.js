@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../styles/theme';
+import { theme } from '../../styles/theme';
  
 export default function ButtonPrimary({ title, onPress, style }) {
   return (

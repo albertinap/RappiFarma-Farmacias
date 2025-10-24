@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { theme } from '../styles/theme';
+import { theme } from '../../styles/theme';
 
 export default function OpenCameraButton({
   onPick,
