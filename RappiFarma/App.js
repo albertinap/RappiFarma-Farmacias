@@ -1,7 +1,7 @@
-import React from "react";
-import { NavigationContainer } from '@react-navigation/native';
-import AppNavigator from "./navigation/AppNavigator";
-import { AuthProvider } from "./context/AuthContext";
+/*import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./src/navigation/AppNavigator"; // tu stack principal
+import { AuthProvider } from "./src/context/AuthContext"; // tu contexto de autenticación
 
 export default function App() {
   return (
@@ -12,12 +12,29 @@ export default function App() {
     </AuthProvider>
   );
 }
-
-/*import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from "./src/screens/LoginScreen";
-
-const Stack = createNativeStackNavigator();
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./src/navigation/AppNavigator";
 
 export default function App() {
-  return <LoginScreen />;
-} */
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
+}*/
+
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import AppNavigator from "./src/navigation/AppNavigator";
+import { AuthProvider } from "./src/context/AuthContext"; // importar el provider!! y envolver
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <AppNavigator />
+      </NavigationContainer>
+    </AuthProvider>
+  );
+}
