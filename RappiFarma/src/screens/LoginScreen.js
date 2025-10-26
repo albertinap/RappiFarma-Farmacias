@@ -1,56 +1,123 @@
 import { useState , useContext } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native"; //son todos componentes nativos de react-n
-import { validarMail } from "../utils/validarMail"; 
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image , Alert } from "react-native"; //son todos componentes nativos de react-n
+import Toast from "react-native-toast-message";
 import { theme } from "../styles/theme";
-import { AuthContext } from "../context/AuthContext";
+import { validarMail } from "../utils/validarMail"; 
+import PasswordInput from "../components/inputs/PasswordInput";
 
-export default function LoginScreen() {
-  const { login } = useContext(AuthContext);
+export default function LoginScreen({navigation}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  console.log("AuthContext:", useContext(AuthContext));
-
+  // Función para manejar el login
+  const handleLogin = () => {
+    if (!validarMail(email)) {
+      Toast.show({
+      type: "error",
+      text1: "Correo inválido",
+      text2: "Por favor, ingresá un correo electrónico válido.",});
+      return;
+    }
+    if (password.length < 6) { //acordate que acá el atributo va sin ()
+      Toast.show({
+      type: "error",
+      text1: "La contraseña debe tener al menos 6 caracteres.",
+    });
+      return;
+    }
+    // Si cumple todo, entra la función real de login
+    Toast.show({
+      type: "success",
+      text1: "Login exitoso",
+      text2: `Bienvenido ${email}`,
+    });
+  };
+  //recién acá arranca el return
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar sesión</Text>
+      <View style={styles.formContainer}>
+        <Image
+          source={require("../../assets/adaptive-icon.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>RappiFarma Farmacias</Text>
+        <Text style={styles.subtitle}>Ingresá tus datos para acceder a tu cuenta</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="farmacia@ejemplo.com"
-        placeholderTextColor={theme.colors.textMuted}
-        value={email}
-        onChangeText={setEmail}
-      />
+        <Text style={styles.Text}>Correo electrónico</Text>
+        <TextInput /*este boton no lo puse en components porque no tiene nada custom*/
+          style={styles.input}
+          placeholder="farmacia@ejemplo.com"
+          placeholderTextColor={theme.colors.textMuted}
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor={theme.colors.textMuted}
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <Text style={styles.Text}>Contraseña</Text>
+        <PasswordInput
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Contraseña"
+        />  
 
-      <TouchableOpacity style={styles.button} onPress={() => login(email, password)}>
-        <Text style={styles.buttonText}>Ingresar</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => handleLogin(email, password)}>
+          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        </TouchableOpacity>
+        <Text style={styles.registerText}>
+            ¿No tenés cuenta?          
+        <TouchableOpacity onPress={() => navigation.navigate("Register")}> 
+          <Text style={styles.registerLink}> Registrate</Text>
+        </TouchableOpacity> {/*Acá abajo no es RegisterScreen porque en el AppNavigator le puse nombre "Register"*/}
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { //fondo general
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: theme.colors.background,
+    backgroundColor: theme.colors.background3,
     padding: 20,
   },
+  formContainer: { //el formulario
+    width: "30%",
+    minWidth: 350, //si lo minimizan, que no se deforme
+    justifyContent: "center",
+    backgroundColor: theme.colors.background,
+    borderRadius: 20,
+    padding: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
+  },
   title: {
-    fontSize: 22,
+    fontSize: 25,
     color: theme.colors.primary,
     fontWeight: "bold",
+    marginBottom: 10,
+    textAlign:"center",
+  },
+  logo: {
+    width: 150,
+    height: 150,
+    marginBottom: 10,
+    alignSelf: "center",
+    transform: [{ translateX: -20 }], // mueve 20px hacia la izquierda, para que parezca centrado
+  },
+  subtitle: {
+    fontSize: 15,
+    color: theme.colors.textMuted,
     marginBottom: 20,
+    textAlign:"center",
+  },
+  Text: {
+    color: theme.colors.text,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginBottom: 2,
   },
   input: {
     width: "100%",
@@ -65,9 +132,21 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     padding: 15,
     borderRadius: 10,
+    width:"40%",
+    alignSelf:"center",
   },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    alignSelf:"center"
   },
+  registerText: {
+  marginTop: 15,
+  color: theme.colors.text,
+  textAlign: "center",
+},
+  registerLink: {
+  color: theme.colors.primary,
+  fontWeight: "bold",
+},
 });

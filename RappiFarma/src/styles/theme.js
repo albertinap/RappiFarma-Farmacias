@@ -5,6 +5,7 @@ export const theme = {
         secondary: '#ff6f3c',    // color complementario
         background: '#FFFFFF',   // color de fondo
         background2:'#f7f7f7',   // color de fondo secundario
+        background3: '#faf2e5ff',  // color de fondo muted
         text: '#1c1c1eff',       // color de texto principal
         textMuted: '#8E8E93',    // texto deshabilitado o secundario
         success: '#34C759',      // verde de éxito

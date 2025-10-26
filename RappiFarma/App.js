@@ -1,40 +1,28 @@
-/*import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import AppNavigator from "./src/navigation/AppNavigator"; // tu stack principal
-import { AuthProvider } from "./src/context/AuthContext"; // tu contexto de autenticación
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Toast from "react-native-toast-message";
+import LoginScreen from './src/screens/LoginScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
-    </AuthProvider>
-  );
-}
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import AppNavigator from "./src/navigation/AppNavigator";
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <AppNavigator />
+      <Stack.Navigator>        
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ title: 'Inicio' }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ title: 'Registro' }}
+        />
+      </Stack.Navigator>
+      <Toast/>
     </NavigationContainer>
   );
-}*/
-
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import AppNavigator from "./src/navigation/AppNavigator";
-import { AuthProvider } from "./src/context/AuthContext"; // importar el provider!! y envolver
-
-export default function App() {
-  return (
-    <AuthProvider>
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
-    </AuthProvider>
-  );
 }
+
