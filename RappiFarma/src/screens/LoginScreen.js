@@ -1,13 +1,16 @@
 import { useState , useContext } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image , Alert } from "react-native"; //son todos componentes nativos de react-n
+import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
 import { theme } from "../styles/theme";
+import { globalStyles } from "../styles/globalStyles";
 import { validarMail } from "../utils/validarMail"; 
 import PasswordInput from "../components/inputs/PasswordInput";
 
 export default function LoginScreen({navigation}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
   // Función para manejar el login
   const handleLogin = () => {
     if (!validarMail(email)) {
@@ -20,8 +23,7 @@ export default function LoginScreen({navigation}) {
     if (password.length < 6) { //acordate que acá el atributo va sin ()
       Toast.show({
       type: "error",
-      text1: "La contraseña debe tener al menos 6 caracteres.",
-    });
+      text1: "La contraseña debe tener al menos 6 caracteres.",});
       return;
     }
     // Si cumple todo, entra la función real de login
@@ -30,18 +32,20 @@ export default function LoginScreen({navigation}) {
       text1: "Login exitoso",
       text2: `Bienvenido ${email}`,
     });
+    navigation.navigate("Home");
   };
+
   //recién acá arranca el return
   return (
-    <View style={styles.container}>
-      <View style={styles.formContainer}>
+    <View style={globalStyles.container}>
+      <View style={globalStyles.formContainer}>
         <Image
           source={require("../../assets/adaptive-icon.png")}
-          style={styles.logo}
+          style={globalStyles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.title}>RappiFarma Farmacias</Text>
-        <Text style={styles.subtitle}>Ingresá tus datos para acceder a tu cuenta</Text>
+        <Text style={globalStyles.title}>RappiFarma Farmacias</Text>
+        <Text style={globalStyles.subtitle}>Ingresá tus datos para acceder a tu cuenta</Text>
 
         <Text style={styles.Text}>Correo electrónico</Text>
         <TextInput /*este boton no lo puse en components porque no tiene nada custom*/
@@ -59,9 +63,9 @@ export default function LoginScreen({navigation}) {
           placeholder="Contraseña"
         />  
 
-        <TouchableOpacity style={styles.button} onPress={() => handleLogin(email, password)}>
-          <Text style={styles.buttonText}>Iniciar sesión</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => handleLogin(email, password)}>
+            <Text style={styles.buttonText}>Iniciar sesión</Text>
+          </TouchableOpacity>
         <Text style={styles.registerText}>
             ¿No tenés cuenta?          
         <TouchableOpacity onPress={() => navigation.navigate("Register")}> 
@@ -74,45 +78,6 @@ export default function LoginScreen({navigation}) {
 }
 
 const styles = StyleSheet.create({
-  container: { //fondo general
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: theme.colors.background3,
-    padding: 20,
-  },
-  formContainer: { //el formulario
-    width: "30%",
-    minWidth: 350, //si lo minimizan, que no se deforme
-    justifyContent: "center",
-    backgroundColor: theme.colors.background,
-    borderRadius: 20,
-    padding: 25,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-  },
-  title: {
-    fontSize: 25,
-    color: theme.colors.primary,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign:"center",
-  },
-  logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 10,
-    alignSelf: "center",
-    transform: [{ translateX: -20 }], // mueve 20px hacia la izquierda, para que parezca centrado
-  },
-  subtitle: {
-    fontSize: 15,
-    color: theme.colors.textMuted,
-    marginBottom: 20,
-    textAlign:"center",
-  },
   Text: {
     color: theme.colors.text,
     fontWeight: "bold",

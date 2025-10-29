@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { theme } from "../styles/theme";
+import { globalStyles } from "../styles/globalStyles";
 import { validarMail } from "../utils/validarMail";
 import PasswordInput from "../components/inputs/PasswordInput";
 import Toast from "react-native-toast-message";
@@ -49,20 +50,20 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../../assets/icon.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-      <Text style={styles.subtitle}>Creá tu cuenta en RappiFarma</Text>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Registrarse</Text>
-
+    <View style={globalStyles.container}>
+      <View style={globalStyles.formContainer}>
+        <Image
+          source={require("../../assets/adaptive-icon.png")}
+          style={globalStyles.logo}
+          resizeMode="contain"
+        />
+        <Text style={globalStyles.title}>Registrarse</Text>
+        <Text style={globalStyles.subtitle}>Creá tu cuenta en RappiFarma</Text>
+        
+        <Text style={styles.Text}>Correo electrónico</Text>
         <TextInput
           style={styles.input}
-          placeholder="Correo electrónico"
+          placeholder="farmacia@ejemplo.com"
           placeholderTextColor={theme.colors.textMuted}
           value={email}
           onChangeText={setEmail}
@@ -70,12 +71,14 @@ export default function RegisterScreen({ navigation }) {
           autoCapitalize="none"
         />
 
+        <Text style={styles.Text}>Ingrese una contraseña (debe tener al menos 6 caracteres)</Text>
         <PasswordInput
           value={password}
           onChangeText={setPassword}
           placeholder="Contraseña"
         />
 
+        <Text style={styles.Text}>Reescriba la contraseña para confirmar</Text>
         <PasswordInput
           value={confirmPassword}
           onChangeText={setConfirmPassword}
@@ -88,7 +91,7 @@ export default function RegisterScreen({ navigation }) {
 
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <Text style={styles.registerText}>
-            ¿Ya tenés una cuenta? <Text style={styles.registerLink}> Iniciá sesión</Text>
+            ¿Ya tenés una cuenta? <Text style={styles.registerLink}> Iniciá sesión</Text> {/*Este link se llama register porque es el mismo estilo nada más */}
           </Text>
         </TouchableOpacity>
       </View>
@@ -97,43 +100,6 @@ export default function RegisterScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#E8F0FE",
-    padding: 20,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 10,
-    transform: [{ translateX: -10 }], // ajustá si tu logo parece descentrado
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 20,
-  },
-  formContainer: {
-    width: "90%",
-    maxWidth: 400,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 25,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  title: {
-    fontSize: 22,
-    color: theme.colors.primary,
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
   input: {
     width: "100%",
     height: 50,
@@ -162,5 +128,11 @@ const styles = StyleSheet.create({
   registerLink: {
     color: theme.colors.primary,
     fontWeight: "bold",
+  },
+  Text: {
+    color: theme.colors.text,
+    fontWeight: "bold",
+    textAlign: "left",
+    marginBottom: 2,
   },
 });
