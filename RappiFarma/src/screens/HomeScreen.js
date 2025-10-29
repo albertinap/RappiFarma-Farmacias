@@ -1,12 +1,19 @@
-/*Aca va a estar el dashboard principal*/
-import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { theme } from "../styles/theme"; // Importamos nuestros colores globales
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, ScrollView, Image } from "react-native";
+import { theme } from "../styles/theme";
+import { listenPendingRequests } from "../features/requests/listen";
 
-// Este componente simula el "Dashboard Principal" de la farmacia
 const HomeScreen = () => {
+  const [requests, setRequests] = useState([]);
+
+  useEffect(() => {
+    const unsub = listenPendingRequests(setRequests);
+    return () => {
+      if (typeof unsub === "function") unsub();
+    };
+  }, []);
+
   return (
-    // ScrollView permite hacer scroll si el contenido es largo
     <ScrollView style={styles.container}>
 
       {/* Header con el nombre de la farmacia */}
@@ -18,31 +25,23 @@ const HomeScreen = () => {
         </Text>
       </View>
 
-      {/* Sección de tarjetas de resumen (Pedidos pendientes, enviados, etc.) */}
+      {/* Tarjetas de resumen */}
       <View style={styles.cardsContainer}>
-
-        {/* Tarjeta 1 */}
         <View style={[styles.card, { backgroundColor: "#FFF5E6" }]}>
           <Text style={styles.cardTitle}>Pedidos Pendientes</Text>
-          <Text style={styles.cardValue}>2</Text>
+          <Text style={styles.cardValue}>{requests.length}</Text>
           <Text style={styles.cardChange}>+12% vs semana anterior</Text>
         </View>
-
-        {/* Tarjeta 2 */}
         <View style={[styles.card, { backgroundColor: "#E6EEFF" }]}>
           <Text style={styles.cardTitle}>Cotizaciones Enviadas</Text>
           <Text style={styles.cardValue}>0</Text>
           <Text style={styles.cardChange}>+12% vs semana anterior</Text>
         </View>
-
-        {/* Tarjeta 3 */}
         <View style={[styles.card, { backgroundColor: "#E6FFF0" }]}>
           <Text style={styles.cardTitle}>Pedidos Adjudicados</Text>
           <Text style={styles.cardValue}>3</Text>
           <Text style={styles.cardChange}>+12% vs semana anterior</Text>
         </View>
-
-        {/* Tarjeta 4 */}
         <View style={[styles.card, { backgroundColor: "#F5E6FF" }]}>
           <Text style={styles.cardTitle}>Pedidos Entregados</Text>
           <Text style={styles.cardValue}>0</Text>
@@ -50,60 +49,53 @@ const HomeScreen = () => {
         </View>
       </View>
 
-      {/* Sección de actividad reciente */}
+      {/* Actividad Reciente (mock) */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Actividad Reciente</Text>
+        {/* tu lista estática previa */}
+      </View>
 
-        {/* Pedido 1 */}
-        <View style={styles.activityItem}>
-          <View style={styles.activityLeft}>
-            <View style={styles.activityIcon} />
-            <View>
-              <Text style={styles.activityName}>María García</Text>
-              <Text style={styles.activityDetail}>Amoxicilina 500mg</Text>
-            </View>
-          </View>
-          <View style={styles.activityRight}>
-            <Text style={styles.activityLocation}>Miraflores</Text>
-            <Text style={[styles.status, { backgroundColor: "#FFF8E1", color: "#9A7400" }]}>
-              Pendiente
-            </Text>
-          </View>
-        </View>
+      {/* Solicitudes nuevas */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Solicitudes nuevas</Text>
 
-        {/* Pedido 2 */}
-        <View style={styles.activityItem}>
-          <View style={styles.activityLeft}>
-            <View style={styles.activityIcon} />
-            <View>
-              <Text style={styles.activityName}>Juan Pérez</Text>
-              <Text style={styles.activityDetail}>Ibuprofeno 400mg</Text>
-            </View>
-          </View>
-          <View style={styles.activityRight}>
-            <Text style={styles.activityLocation}>San Isidro</Text>
-            <Text style={[styles.status, { backgroundColor: "#E3F2FD", color: "#0D47A1" }]}>
-              En preparación
-            </Text>
-          </View>
-        </View>
+        {Array.isArray(requests) && requests.length === 0 ? (
+          <Text style={{ color: theme.colors.textMuted }}>Sin solicitudes pendientes</Text>
+        ) : (
+          (requests || []).map((req) => {
+            const firstImage =
+              Array.isArray(req?.images) && req.images.length > 0 && typeof req.images[0] === "string"
+                ? req.images[0]
+                : null;
 
-        {/* Pedido 3 */}
-        <View style={styles.activityItem}>
-          <View style={styles.activityLeft}>
-            <View style={styles.activityIcon} />
-            <View>
-              <Text style={styles.activityName}>Ana Torres</Text>
-              <Text style={styles.activityDetail}>Paracetamol 500mg</Text>
-            </View>
-          </View>
-          <View style={styles.activityRight}>
-            <Text style={styles.activityLocation}>Surco</Text>
-            <Text style={[styles.status, { backgroundColor: "#E8F5E9", color: "#1B5E20" }]}>
-              Listo para envío
-            </Text>
-          </View>
-        </View>
+            return (
+              <View key={req?.id ?? String(Math.random())} style={styles.activityItem}>
+                <View style={styles.activityLeft}>
+                  {firstImage ? (
+                    <Image
+                      source={{ uri: firstImage }}
+                      style={{ width: 56, height: 56, borderRadius: 8, marginRight: 10 }}
+                    />
+                  ) : (
+                    <View style={styles.activityIcon} />
+                  )}
+                  <View>
+                    <Text style={styles.activityName}>
+                      {`Solicitud #${(req?.id ?? "").slice(0, 6) || "----"}`}
+                    </Text>
+                    <Text style={styles.activityDetail}>
+                      {(req?.status ?? "pendiente")} · {(req?.images?.length ?? 0)} imagen(es)
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.activityRight}>
+                  <Text style={[styles.status, { backgroundColor: "#FFF8E1", color: "#9A7400" }]}>
+                    Pendiente
+                  </Text>
+                </View>
+              </View>
+            );
+          })
+        )}
       </View>
     </ScrollView>
   );
@@ -115,20 +107,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    padding: 20,
+    padding: 16,
   },
   header: {
     marginBottom: 20,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: theme.colors.primary,
+    fontSize: 24,
+    fontWeight: "700",
+    color: theme.colors.primaryText,
   },
   subtitle: {
-    fontSize: 18,
-    color: theme.colors.text,
-    marginTop: 4,
+    fontSize: 16,
+    color: theme.colors.textMuted,
+    marginBottom: 4,
   },
   description: {
     fontSize: 14,
@@ -137,82 +129,83 @@ const styles = StyleSheet.create({
   },
   cardsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap", // permite que se ajusten al ancho de la pantalla
+    flexWrap: "wrap",
     justifyContent: "space-between",
+    marginBottom: 24,
   },
   card: {
-    width: "47%", // dos tarjetas por fila
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 8,
+    width: "48%",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   cardTitle: {
     fontSize: 14,
-    color: theme.colors.text,
+    color: "#333",
+    marginBottom: 4,
   },
   cardValue: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: "bold",
-    marginVertical: 4,
+    color: "#000",
   },
   cardChange: {
     fontSize: 12,
-    color: "green",
+    color: "#666",
   },
   section: {
-    marginTop: 25,
+    marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: theme.colors.text,
+    fontWeight: "600",
+    color: theme.colors.primaryText,
+    marginBottom: 12,
   },
   activityItem: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 10,
+    justifyContent: "space-between",
+    backgroundColor: "#FFF",
+    borderRadius: 12,
     padding: 12,
     marginBottom: 10,
     shadowColor: "#000",
     shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowRadius: 2,
+    elevation: 1,
   },
   activityLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
   activityIcon: {
-    width: 12,
-    height: 12,
-    backgroundColor: theme.colors.primary,
-    borderRadius: 6,
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    backgroundColor: "#EEE",
     marginRight: 10,
   },
   activityName: {
-    fontWeight: "bold",
-    color: theme.colors.text,
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#222",
   },
   activityDetail: {
-    color: theme.colors.textMuted,
+    fontSize: 13,
+    color: "#666",
   },
-  activityRight: {
-    alignItems: "flex-end",
-  },
-  activityLocation: {
-    fontSize: 12,
-    color: theme.colors.textMuted,
-  },
+  activityRight: {},
   status: {
-    marginTop: 3,
-    fontWeight: "bold",
-    fontSize: 12,
+    fontSize: 13,
+    paddingVertical: 4,
     paddingHorizontal: 8,
-    paddingVertical: 3,
     borderRadius: 8,
     overflow: "hidden",
+    textAlign: "center",
   },
 });
