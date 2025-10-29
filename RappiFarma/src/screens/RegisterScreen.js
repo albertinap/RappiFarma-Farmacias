@@ -1,69 +1,89 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { theme } from "../styles/theme";
 import { globalStyles } from "../styles/globalStyles";
 import { validarMail } from "../utils/validarMail";
 import PasswordInput from "../components/inputs/PasswordInput";
 import Toast from "react-native-toast-message";
+import { signUpPharmacy } from "../features/auth/actions";
 
 export default function RegisterScreen({ navigation }) {
+  const [nombreFarmacia, setNombreFarmacia] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [direccion, setDireccion] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = () => {
-    if (!validarMail(email)) {
-      Toast.show({
-        type: "error",
-        text1: "Correo inválido",
-        text2: "Ingresá un correo electrónico válido.",
-      });
+  const handleRegister = async () => {
+    const nf = nombreFarmacia.trim();
+    const tel = telefono.trim();
+    const dir = direccion.trim();
+    const mail = email.trim();
+    const pass = password;
+
+    if (!nf || !tel || !dir || !mail) {
+      Toast.show({ type: "error", text1: "Completá todos los campos" });
+      return;
+    }
+    if (!pass || pass.length < 6) {
+      Toast.show({ type: "error", text1: "Contraseña mínima 6 caracteres" });
       return;
     }
 
-    if (password.trim() === "" || confirmPassword.trim() === "") {
-      Toast.show({
-        type: "error",
-        text1: "Campos vacíos",
-        text2: "Completá todos los campos antes de continuar.",
-      });
-      return;
+    try {
+      setLoading(true);
+      await signUpPharmacy(mail, pass, nf, tel, dir);
+      Toast.show({ type: "success", text1: "Registro exitoso" });
+      navigation.navigate("Login");
+    } catch (e) {
+      const map = {
+        "auth/email-already-in-use": "El correo ya está registrado",
+        "auth/invalid-email": "Email inválido",
+        "auth/weak-password": "Contraseña débil",
+      };
+      Toast.show({ type: "error", text1: map[e?.code] || "Error al registrar" });
+    } finally {
+      setLoading(false);
     }
-
-    if (password !== confirmPassword) {
-      Toast.show({
-        type: "error",
-        text1: "Contraseñas no coinciden",
-        text2: "Asegurate de escribir la misma contraseña en ambos campos.",
-      });
-      return;
-    }
-
-    Toast.show({
-      type: "success",
-      text1: "Registro exitoso",
-      text2: "Ya podés iniciar sesión en RappiFarma.",
-    });
-
-    // Navegar al login una vez registrado
-    navigation.navigate("Login");
   };
 
   return (
-    <View style={globalStyles.container}>
-      <View style={globalStyles.formContainer}>
-        <Image
-          source={require("../../assets/adaptive-icon.png")}
-          style={globalStyles.logo}
-          resizeMode="contain"
-        />
-        <Text style={globalStyles.title}>Registrarse</Text>
-        <Text style={globalStyles.subtitle}>Creá tu cuenta en RappiFarma</Text>
-        
-        <Text style={styles.Text}>Correo electrónico</Text>
+    <View style={styles.container}>
+      <Image source={require("../../assets/icon.png")} style={styles.logo} resizeMode="contain" />
+      <Text style={styles.subtitle}>Creá tu cuenta en RappiFarma</Text>
+
+      <View style={styles.formContainer}>
+        <Text style={styles.title}>Registrarse</Text>
+
         <TextInput
           style={styles.input}
-          placeholder="farmacia@ejemplo.com"
+          placeholder="Nombre de farmacia"
+          placeholderTextColor={theme.colors.textMuted}
+          value={nombreFarmacia}
+          onChangeText={setNombreFarmacia}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Teléfono"
+          placeholderTextColor={theme.colors.textMuted}
+          value={telefono}
+          onChangeText={setTelefono}
+          keyboardType="phone-pad"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Dirección"
+          placeholderTextColor={theme.colors.textMuted}
+          value={direccion}
+          onChangeText={setDireccion}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
           placeholderTextColor={theme.colors.textMuted}
           value={email}
           onChangeText={setEmail}
@@ -87,6 +107,8 @@ export default function RegisterScreen({ navigation }) {
 
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
           <Text style={styles.buttonText}>Crear cuenta</Text>
+        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+          <Text style={styles.buttonText}>{loading ? "..." : "Crear cuenta"}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
@@ -125,9 +147,10 @@ const styles = StyleSheet.create({
     color: "#555",
     textAlign: "center",
   },
-  registerLink: {
-    color: theme.colors.primary,
-    fontWeight: "bold",
+  title:{ fontSize:22, color:theme.colors.primary, fontWeight:"bold", marginBottom:20, textAlign:"center" },
+  input:{
+    width:"100%", height:50, borderColor:theme.colors.secondary, borderWidth:1,
+    borderRadius:10, paddingHorizontal:10, marginBottom:15, color: theme.colors.text
   },
   Text: {
     color: theme.colors.text,
@@ -135,4 +158,8 @@ const styles = StyleSheet.create({
     textAlign: "left",
     marginBottom: 2,
   },
+  button:{ backgroundColor:theme.colors.primary, padding:15, borderRadius:10, marginTop:10 },
+  buttonText:{ color:"#fff", fontWeight:"bold", textAlign:"center" },
+  registerText:{ marginTop:15, color:"#555", textAlign:"center" },
+  registerLink:{ color:theme.colors.primary, fontWeight:"bold" },
 });
