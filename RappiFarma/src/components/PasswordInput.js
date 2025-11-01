@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // los iconos estos son compatibles con web y móvil
-import { theme } from "../../styles/theme";
+import { theme } from "../styles/theme";
 
 export default function PasswordInput({ value, onChangeText, placeholder }) {
   const [secureText, setSecureText] = useState(true);

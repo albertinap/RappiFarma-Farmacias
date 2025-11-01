@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { theme } from "../styles/theme";
-import PasswordInput from "../components/inputs/PasswordInput";
+import { globalStyles } from "../styles/globalStyles";
+import PasswordInput from "../components/PasswordInput";
 import Toast from "react-native-toast-message";
 import { signUpPharmacy } from "../features/auth/actions";
 
@@ -47,12 +48,11 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require("../../assets/icon.png")} style={styles.logo} resizeMode="contain" />
-      <Text style={styles.subtitle}>Creá tu cuenta en RappiFarma</Text>
-
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Registrarse</Text>
+    <View style={globalStyles.container}>
+      <View style={globalStyles.formContainer}>
+        <Image source={require("../../assets/adaptive-icon.png")} style={globalStyles.logo} resizeMode="contain" />
+        <Text style={globalStyles.title}>Registrarse</Text>
+        <Text style={globalStyles.subtitle}>Creá tu cuenta en RappiFarma</Text>    
 
         <TextInput
           style={styles.input}
