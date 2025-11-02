@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { theme } from "../styles/theme"; //falta incluir esto después
 
 export default function Sidebar({ active, setActive }) {
-  const menuItems = ["MisPedidos", "Solicitudes", "Gestión"];
+  const menuItems = ["Solicitudes", "Mis pedidos"];
 
   return (
     <View style={styles.sidebar}>

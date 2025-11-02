@@ -22,36 +22,7 @@ const MisPedidos = () => {
         <Text style={styles.description}>
           Actualiza el estado de cada pedido en tiempo real
         </Text>
-      </View>
-
-      {/* Tarjetas de resumen 
-      <View style={styles.cardsContainer}>
-        <View style={[styles.card, { backgroundColor: "#FFF5E6" }]}>
-          <Text style={styles.cardTitle}>Pedidos Pendientes</Text>
-          <Text style={styles.cardValue}>{requests.length}</Text>
-          <Text style={styles.cardChange}>+12% vs semana anterior</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: "#E6EEFF" }]}>
-          <Text style={styles.cardTitle}>Cotizaciones Enviadas</Text>
-          <Text style={styles.cardValue}>0</Text>
-          <Text style={styles.cardChange}>+12% vs semana anterior</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: "#E6FFF0" }]}>
-          <Text style={styles.cardTitle}>Pedidos Adjudicados</Text>
-          <Text style={styles.cardValue}>3</Text>
-          <Text style={styles.cardChange}>+12% vs semana anterior</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: "#F5E6FF" }]}>
-          <Text style={styles.cardTitle}>Pedidos Entregados</Text>
-          <Text style={styles.cardValue}>0</Text>
-          <Text style={styles.cardChange}>+12% vs semana anterior</Text>
-        </View>
-      </View>*/}
-
-      {/* Actividad Reciente (mock) */}
-      <View style={styles.section}>
-        {/* tu lista estática previa */}
-      </View>
+      </View>      
 
       {/* Los pedidos que está administrando ahora la farmacia */}
       <View style={styles.section}>
@@ -62,7 +33,7 @@ const MisPedidos = () => {
             No tienes pedidos adjudicados en este momento.
           </Text>
         ) : (
-          (requests || []).map((req) => {
+          (requests || []).map((req, index) => {
             const firstImage =
               Array.isArray(req?.images) &&
               req.images.length > 0 &&
@@ -90,9 +61,7 @@ const MisPedidos = () => {
                     <View style={styles.activityIcon} />
                   )}
                   <View>
-                    <Text style={styles.activityName}>
-                      {`Solicitud #${(req?.id ?? "").slice(0, 6) || "----"}`}
-                    </Text>
+                    <Text style={styles.activityName}>Pedido #{index + 1} </Text>
                     <Text style={styles.activityDetail}>
                       {(req?.status ?? "pendiente")} ·{" "}
                       {(req?.images?.length ?? 0)} imagen(es)

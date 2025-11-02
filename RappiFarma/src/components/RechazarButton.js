@@ -8,97 +8,68 @@ import {
   StyleSheet,
 } from "react-native";
 import Toast from "react-native-toast-message";
-import { theme } from "../styles/theme"; 
+import { theme } from "../styles/theme";
 
-const CotizacionButton = ({
+const RechazarButton = ({
   request,
-  onQuoteSubmit,
-  buttonText = "Enviar Cotización",
+  onReject,
+  buttonText = "Rechazar",
   buttonStyle,
   textStyle,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [monto, setMonto] = useState("");
-  const [tiempo, setTiempo] = useState("");
-  const [medName, setMedName] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
   const handlePress = () => {
     setModalVisible(true);
-    setMonto("");
-    setTiempo("");
-    setMedName("");
+    setMensaje("");
   };
 
   const handleSubmit = () => {
-    if (!monto || isNaN(parseFloat(monto))) {
+    if (!mensaje.trim()) {
       Toast.show({
         type: "error",
         text1: "Error",
-        text2: "Por favor ingresa un monto válido",
+        text2: "Por favor ingresa un mensaje de rechazo",
         position: "top",
       });
       return;
     }
 
-    if (!tiempo || isNaN(parseFloat(tiempo))) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Por favor ingresa el tiempo de espera correctamente",
-        position: "top",
-      });
-      return;
-    }
-
-    if (!medName) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Por favor ingresa el nombre del medicamento",
-        position: "top",
-      });
-      return;
-    }
-
-    const quoteData = {
+    const rejectData = {
       requestId: request?.id,
-      monto: parseFloat(monto),
-      tiempoEspera: tiempo,
-      medication: medName,      
+      mensaje,
       client: request?.clientName,
       ...request,
     };
 
-    if (onQuoteSubmit) {
-      onQuoteSubmit(quoteData);
+    if (onReject) {
+      onReject(rejectData);
       Toast.show({
         type: "success",
-        text1: "Cotización enviada",
-        text2: `Has enviado una cotización para esta solicitud`,
+        text1: "Pedido rechazado",
+        text2: mensaje,
         position: "top",
+        visibilityTime: 3000,
       });
     }
 
     setModalVisible(false);
-    setMonto("");
-    setTiempo("");
-    setMedName("");
+    setMensaje("");
   };
 
   const handleCancel = () => {
     setModalVisible(false);
-    setMonto("");
-    setTiempo("");
-    setMedName("");
+    setMensaje("");
   };
 
   return (
     <>
       <TouchableOpacity
-        style={[styles.quoteButton, buttonStyle]}
+        style={[styles.rejectButton, buttonStyle]}
         onPress={handlePress}
       >
-        <Text style={[styles.quoteButtonText, textStyle]}>{buttonText}</Text>
+        <Text style={[styles.rejectButtonText, textStyle]}>{buttonText}</Text>
       </TouchableOpacity>
 
       <Modal
@@ -109,39 +80,18 @@ const CotizacionButton = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Enviar Cotización</Text>
-            <Text style={styles.modalSubtitle}>
-              {request?.medicationName || "Medicamento"}
-            </Text>
+            <Text style={styles.modalTitle}>Rechazar Pedido</Text>
 
-            <Text style={styles.modalLabel}>Nombre del medicamento y dosis</Text>
+            <Text style={styles.modalLabel}>Motivo del rechazo</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Ejemplo: ibuprofeno 600"
+              placeholder="Escribe un breve mensaje"
               placeholderTextColor={theme.colors.textMuted}
-              value={medName}
-              onChangeText={setMedName}
+              value={mensaje}
+              onChangeText={setMensaje}
+              multiline={true}
+              numberOfLines={3}
               autoFocus={true}
-            />
-
-            <Text style={styles.modalLabel}>Monto (en pesos $)</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ejemplo: 25.50"
-              placeholderTextColor={theme.colors.textMuted}
-              keyboardType="decimal-pad"
-              value={monto}
-              onChangeText={setMonto}
-              autoFocus={true}
-            />
-
-            <Text style={styles.modalLabel}>Tiempo de espera (en minutos)</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ejemplo: 48"
-              placeholderTextColor={theme.colors.textMuted}
-              value={tiempo}
-              onChangeText={setTiempo}
             />
 
             <View style={styles.modalButtons}>
@@ -156,27 +106,25 @@ const CotizacionButton = ({
                 style={[styles.modalButton, styles.submitButton]}
                 onPress={handleSubmit}
               >
-                <Text style={styles.submitButtonText}>Enviar</Text>
+                <Text style={styles.submitButtonText}>Rechazar</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-
-      
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  quoteButton: {
-    backgroundColor: "#007AFF",
+  rejectButton: {
+    backgroundColor: "#FF5252",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
     minWidth: 120,
   },
-  quoteButtonText: {
+  rejectButtonText: {
     color: "#fff",
     fontWeight: "600",
     fontSize: 14,
@@ -186,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     padding: 20,
   },
   modalContainer: {
@@ -205,32 +153,36 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "#1A1A1A",
-    marginBottom: 8,
+    marginBottom: 16,
     textAlign: "center",
   },
-  modalSubtitle: {
+  modalLabel: {
     fontSize: 16,
-    color: "#007AFF",
     fontWeight: "600",
-    marginBottom: 20,
-    textAlign: "center",
+    color: "#333333",
+    marginBottom: 6,
   },
-  modalLabel: { fontSize: 16, fontWeight: "600", color: "#333333", marginBottom: 8 },
   textInput: {
     borderWidth: 1,
     borderColor: "#DDDDDD",
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 12,
     backgroundColor: "#F8F9FA",
+    textAlignVertical: "top",
   },
-  modalButtons: { flexDirection: "row", justifyContent: "space-between", gap: 12 },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    marginTop: 12,
+  },
   modalButton: { flex: 1, padding: 14, borderRadius: 8, alignItems: "center" },
   cancelButton: { backgroundColor: "#F8F9FA", borderWidth: 1, borderColor: "#DDDDDD" },
   cancelButtonText: { color: "#666666", fontWeight: "600", fontSize: 16 },
-  submitButton: { backgroundColor: "#007AFF" },
+  submitButton: { backgroundColor: "#FF5252" },
   submitButtonText: { color: "#FFFFFF", fontWeight: "600", fontSize: 16 },
 });
 
-export default CotizacionButton;
+export default RechazarButton;

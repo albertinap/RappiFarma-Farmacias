@@ -10,13 +10,11 @@ export default function HomeScreen() {
   const [active, setActive] = useState("MisPedidos");
 
   const renderContent = () => {
-    switch (active) {
-      case "MisPedidos":
-        return <MisPedidos />;
+    switch (active) {    
       case "Solicitudes":
         return <Solicitudes />;
-      case "Gestion":
-        return <View><Text>Mis pedidos</Text></View>;
+      case "MisPedidos":
+        return <MisPedidos />;      
       default:
         return <MisPedidos />;
     }
