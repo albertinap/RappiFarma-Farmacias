@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, Image } from "react-native";
-import { listenPendingRequests } from "../features/requests/listen";; 
+import { listenPendingRequests } from "../features/requests/listen";
 import { theme } from "../styles/theme"; 
+import EstadoPedido from "../components/EstadoPedido";
+
 
 const MisPedidos = () => {
   const [requests, setRequests] = useState([]);
@@ -68,16 +70,20 @@ const MisPedidos = () => {
                     </Text>
                   </View>
                 </View>
+
+                {/*componente (sólo visual) para cambiar el estado*/}
                 <View style={styles.activityRight}>
-                  <Text
-                    style={[
-                      styles.status,
-                      { backgroundColor: "#FFF8E1", color: "#9A7400" },
-                    ]}
-                  >
-                    Pendiente
-                  </Text>
+                  <EstadoPedido />
                 </View>
+
+                {/*Esto en un futuro puede conectar con la bd, pero no sé el nombre de los atributos
+                <View style={styles.requestCard}>
+                  <Text style={styles.medicationName}>Pedido #{index + 1}</Text>
+                  <EstadoPedido
+                    estadoInicial={req?.status ?? "pendiente"}
+                    onChangeEstado={(nuevo) => console.log("Estado cambiado a:", nuevo)}
+                  />
+                </View>*/}                                              
               </View>
             );
           })
@@ -100,18 +106,22 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#1E90FF",
+  title: { 
+    fontSize: 28, 
+    fontWeight: "bold", 
+    color: "#1A1A1A" 
   },
-  subtitle: {
-    fontSize: 16,
-    color: "#444",
+  subtitle: { 
+    fontSize: 18, 
+    fontWeight: "600", 
+    color: "#007AFF", 
+    marginTop: 4 
   },
-  description: {
-    color: "#777",
-    marginTop: 5,
+  description: { 
+    fontSize: 14, 
+    color: "#666666", 
+    marginTop: 8,
+    lineHeight: 20 
   },
   cardsContainer: {
     flexDirection: "row",

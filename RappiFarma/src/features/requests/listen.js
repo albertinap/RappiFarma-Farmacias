@@ -5,7 +5,7 @@ import { collection, query, where, onSnapshot } from "firebase/firestore";
 export function listenPendingRequests(cb) {
   const q = query(
     collection(db, "requests"),
-    where("status", "==", "pendiente")
+    where("state", "==", "CREADA")
     // sin orderBy => no necesita índice compuesto
   );
   return onSnapshot(q, (snap) => {
