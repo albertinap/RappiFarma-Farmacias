@@ -5,7 +5,6 @@ export function listenPendingRequests(cb) {
   const now = Timestamp.now(); // reloj del servidor (UTC)
   const q = query(
     collection(db, "requests"),
-    where("state", "==", "CREADA"),
     where("expiresAt", ">", now)
   );
 
