@@ -84,14 +84,8 @@ const Solicitudes = () => {
                 <View key={req?.id ?? index} style={styles.requestCard}>
                   <View style={styles.requestHeader}>
                     <Text style={styles.medicationName}>
-                      {req?.medicationName || `Solicitud #${index + 1}`}
-                    </Text>
-                    
-                    {req?.clientName && (
-                      <Text style={styles.clientName}>
-                        Cliente: {req.clientName}
-                      </Text>
-                    )}
+                      {`Solicitud #${index + 1}`}
+                    </Text>                                        
                   </View>
 
                   {firstImage && (
@@ -117,16 +111,22 @@ const Solicitudes = () => {
                     {/* Columna izquierda - datos */}
                     <View style={styles.infoColumn}>
                       <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Cliente: </Text>
-                        {req?.clientName || `Cliente #${index + 1}`}
+                        <Text style={styles.detailText}>
+                          <Text style={styles.detailLabel}>Cliente: </Text>
+                          {req.user
+                            ? `${req.user.nombre ?? ""} ${req.user.apellido ?? ""}`.trim()
+                            : `Cliente #${index + 1}`} 
+                        </Text>
                       </Text>
                       <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Zona: </Text>
-                        {req?.district || "Sin especificar"}
+                        <Text style={styles.detailLabel}>Ubicación: </Text>
+                        {req.user?.direccion ?? "Sin especificar"}
                       </Text>
                       <Text style={styles.detailText}>
-                        <Text style={styles.detailLabel}>Fecha: </Text>
-                        {req?.createdAt?.toDate().toLocaleDateString() }
+                        <Text style={styles.detailLabel}>Fecha y hora: </Text>
+                        <Text>{req?.createdAt
+                          ? `${req.createdAt.toDate().toLocaleDateString()} - ${req.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}hs`
+                        : "Sin fecha"}</Text>
                       </Text>
                     </View>
 
@@ -266,7 +266,8 @@ const styles = StyleSheet.create({
   imageHint: {
     fontSize: 12,
     color: "#50a3fbff",
-    textAlign: "center",
+    textAlign: "left",
+    marginLeft: 5,
     marginBottom: 12,
   },
   infoRow: {

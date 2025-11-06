@@ -182,7 +182,7 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>Nombre del medicamento *</Text>
+                  <Text style={styles.inputLabel}>Nombre del medicamento</Text>
                   <TextInput
                     placeholder="Ej: Paracetamol 500mg"
                     placeholderTextColor="#999"
@@ -200,7 +200,7 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
 
                 <View style={styles.row}>
                   <View style={[styles.inputGroup, styles.halfInput]}>
-                    <Text style={styles.inputLabel}>Cantidad *</Text>
+                    <Text style={styles.inputLabel}>Cantidad</Text>
                     <TextInput
                       placeholder="Ej: 2"
                       placeholderTextColor="#999"
@@ -218,7 +218,7 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
                   </View>
 
                   <View style={[styles.inputGroup, styles.halfInput]}>
-                    <Text style={styles.inputLabel}>Precio unitario (S/.) *</Text>
+                    <Text style={styles.inputLabel}>Precio unitario ($)   </Text>
                     <TextInput
                       placeholder="Ej: 15.50"
                       placeholderTextColor="#999"
@@ -238,7 +238,7 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
 
                 {med.cantidad && med.precio && (
                   <Text style={styles.subtotalText}>
-                    Subtotal: S/. {(parseInt(med.cantidad) * parseFloat(med.precio) || 0).toFixed(2)}
+                    Subtotal: $ {(parseInt(med.cantidad) * parseFloat(med.precio) || 0).toFixed(2)}
                   </Text>
                 )}
               </View>
@@ -254,7 +254,7 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
 
             <View style={styles.totalContainer}>
               <Text style={styles.totalLabel}>TOTAL COTIZACIÓN</Text>
-              <Text style={styles.totalAmount}>S/. {calcularTotal().toFixed(2)}</Text>
+              <Text style={styles.totalAmount}>$ {calcularTotal().toFixed(2)}</Text>
             </View>
           </ScrollView>
 
