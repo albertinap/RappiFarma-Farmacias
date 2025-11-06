@@ -309,11 +309,43 @@ return (
             <Text style={styles.addButtonText}>Agregar otro medicamento</Text>
           </TouchableOpacity>
 
-            <View style={styles.totalContainer}>
-              <Text style={styles.totalLabel}>TOTAL COTIZACIÓN</Text>
-              <Text style={styles.totalAmount}>S/. {calcularTotal().toFixed(2)}</Text>
+          {/* Sección de Tiempo de Espera */}
+          <View style={styles.tiempoEsperaSection}>
+            <Text style={styles.sectionTitle}>Tiempo de Preparación</Text>
+            <Text style={styles.inputLabel}>Tiempo estimado (minutos) *</Text>
+            <TextInput
+                placeholder="Ej: 30"
+                placeholderTextColor="#999"
+                style={[
+                  styles.input,
+                  styles.tiempoInput,
+                  errors.tiempoEspera && styles.inputError
+                ]}
+                keyboardType="numeric"
+                value={tiempoEspera}
+                onChangeText={actualizarTiempoEspera}
+            />
+            {errors.tiempoEspera ? (
+  <Text style={styles.errorText}>{errors.tiempoEspera}</Text>
+) : null}
+              
+            <Text style={styles.sugerenciasLabel}>Sugerencias rápidas:</Text>
+            <View style={styles.sugerenciasContainer}>
+              {getTiempoSugerencias()}
             </View>
-          </ScrollView>
+          </View>
+
+
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalLabel}>TOTAL COTIZACIÓN</Text>
+            <Text style={styles.totalAmount}>$ {calcularTotal().toFixed(2)}</Text>
+            {tiempoEspera ? (
+              <Text style={styles.tiempoTotalText}>
+                Tiempo de entrega: {tiempoEspera} minutos
+              </Text>
+            ) : null}
+          </View>
+        </ScrollView>
 
         <View style={styles.footer}>
           <TouchableOpacity 
