@@ -303,7 +303,7 @@ return (
           {/* Sección de Tiempo de Espera */}
           <View style={styles.tiempoEsperaSection}>
             <Text style={styles.sectionTitle}>Tiempo de Preparación</Text>
-            <Text style={styles.inputLabel}>Tiempo estimado (minutos) *</Text>
+            <Text style={styles.inputLabel}>Tiempo estimado (en minutos)</Text>
             <TextInput
                 placeholder="Ej: 30"
                 placeholderTextColor="#999"

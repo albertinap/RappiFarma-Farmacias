@@ -11,9 +11,10 @@ import {
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import { listenPendingRequests } from "../features/requests/listen";
-import CotizacionButton from "../components/CotizacionButton";
 import RechazarButton from "../components/RechazarButton";
+import CotizacionButton from "../components/CotizacionButton";
 import CotizacionForm from "../components/CotizacionForm";
+import { theme } from "../styles/theme";
 
 const Solicitudes = () => {
   const [requests, setRequests] = useState([]);
@@ -38,7 +39,7 @@ const Solicitudes = () => {
     Toast.show({
       type: "success",
       text1: "Cotización enviada",
-      text2: `Monto total: S/. ${cotizacionData.montoTotal.toFixed(2)}`,
+      text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
       position: "top",
     });
     
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
   subtitle: { 
     fontSize: 18, 
     fontWeight: "600", 
-    color: "#007AFF", 
+    color: theme.colors.primary, 
     marginTop: 4 
   },
   description: { 
