@@ -75,15 +75,7 @@ const MisPedidos = () => {
                 <View style={styles.activityRight}>
                   <EstadoPedido />
                 </View>
-
-                {/*Esto en un futuro puede conectar con la bd, pero no sé el nombre de los atributos
-                <View style={styles.requestCard}>
-                  <Text style={styles.medicationName}>Pedido #{index + 1}</Text>
-                  <EstadoPedido
-                    estadoInicial={req?.status ?? "pendiente"}
-                    onChangeEstado={(nuevo) => console.log("Estado cambiado a:", nuevo)}
-                  />
-                </View>*/}                                              
+                                             
               </View>
             );
           })
@@ -114,7 +106,7 @@ const styles = StyleSheet.create({
   subtitle: { 
     fontSize: 18, 
     fontWeight: "600", 
-    color: "#007AFF", 
+    color: theme.colors.primary, 
     marginTop: 4 
   },
   description: { 
