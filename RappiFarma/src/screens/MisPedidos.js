@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, View, Text, Image } from "react-native";
+import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { listenPendingRequests } from "../features/requests/listen";
 import { theme } from "../styles/theme"; 
 import EstadoPedido from "../components/EstadoPedido";
-
 
 const MisPedidos = () => {
   const [requests, setRequests] = useState([]);
@@ -15,12 +14,13 @@ const MisPedidos = () => {
     };
   }, []);
 
+
   return (
     <ScrollView style={styles.container}>
       {/* Header con el nombre de la farmacia */}
       <View style={styles.header}>
         <Text style={styles.title}>Farmacia Central</Text>
-        <Text style={styles.subtitle}>Administración y gestión de pedidos adjudicados </Text>
+        <Text style={styles.subtitle}>Administración y gestión de pedidos adjudicados</Text>
         <Text style={styles.description}>
           Actualiza el estado de cada pedido en tiempo real
         </Text>
@@ -31,51 +31,86 @@ const MisPedidos = () => {
         <Text style={styles.sectionTitle}>Mis pedidos</Text>
 
         {Array.isArray(requests) && requests.length === 0 ? (
-          <Text style={{ color: theme.colors.textMuted }}>
+          <Text style={styles.noPedidos}>
             No tienes pedidos adjudicados en este momento.
           </Text>
         ) : (
-          (requests || []).map((req, index) => {
-            const firstImage =
-              Array.isArray(req?.images) &&
-              req.images.length > 0 &&
-              typeof req.images[0] === "string"
-                ? req.images[0]
-                : null;
-
+          (requests || []).map((req, index) => {            
             return (
               <View
                 key={req?.id ?? String(Math.random())}
-                style={styles.activityItem}
+                style={styles.pedidoCard}
               >
-                <View style={styles.activityLeft}>
-                  {firstImage ? (
-                    <Image
-                      source={{ uri: firstImage }}
-                      style={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 8,
-                        marginRight: 10,
-                      }}
-                    />
+                {/* Header del pedido */}
+                <View style={styles.pedidoHeader}>
+                  <Text style={styles.pedidoNumero}>Pedido #{index + 1}</Text>
+                  <Text style={styles.pedidoFecha}>
+                    {req?.createdAt
+                      ? `${req.createdAt.toDate().toLocaleDateString()} - ${req.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}hs`
+                    : "Sin fecha"}
+                  </Text>
+                </View>              
+
+                {/* Información del cliente */}
+                <View style={styles.clienteSection}>
+                  <Text style={styles.sectionLabel}>Información del Cliente</Text>
+                  <Text style={styles.detailText}>
+                    <Text style={styles.clienteInfo}>Nombre y apellido: </Text>
+                    {req.user
+                      ? `${req.user.nombre ?? ""} ${req.user.apellido ?? ""}`.trim()
+                    : `Cliente #${index + 1}`} 
+                  </Text>
+                  <Text style={styles.clienteInfo}>
+                    📞 {req?.telefono || "Teléfono no disponible"}
+                  </Text>
+                  <Text style={styles.clienteInfo}>
+                    📍 {req?.direccion || "Dirección no disponible"}
+                  </Text>
+                </View>
+
+                {/* Medicamentos solicitados */}
+                <View style={styles.medicamentosSection}>
+                  <Text style={styles.sectionLabel}>Medicamentos Solicitados</Text>
+                  {req?.medicamentos?.length > 0 ? (
+                    req.medicamentos.map((med, medIndex) => (
+                      <View key={medIndex} style={styles.medicamentoItem}>
+                        <Text style={styles.medicamentoNombre}>
+                          💊 {med.nombre || "Medicamento no especificado"}
+                        </Text>
+                        <Text style={styles.medicamentoDetalle}>
+                          Cantidad: {med.cantidad || "No especificada"} • 
+                          Precio: $ {med.precio || "0.00"}
+                        </Text>
+                      </View>
+                    ))
                   ) : (
-                    <View style={styles.activityIcon} />
+                    <Text style={styles.noMedicamentos}>
+                      No se especificaron medicamentos
+                    </Text>
                   )}
-                  <View>
-                    <Text style={styles.activityName}>Pedido #{index + 1} </Text>
-                    <Text style={styles.activityDetail}>
-                      {(req?.status ?? "pendiente")} ·{" "}
-                      {(req?.images?.length ?? 0)} imagen(es)
+                </View>                
+
+                {/* Información de la cotización */}
+                <View style={styles.cotizacionSection}>
+                  <Text style={styles.sectionLabel}>Mi Cotización</Text>
+                  <View style={styles.cotizacionInfo}>
+                    <Text style={styles.cotizacionMonto}>
+                      Monto total: $ {req?.quoteAmount || "0.00"}
+                    </Text>
+                    <Text style={styles.cotizacionTiempo}>
+                      ⏱️ Tiempo estimado: {req?.deliveryTime || "No especificado"}
                     </Text>
                   </View>
                 </View>
 
-                {/*componente (sólo visual) para cambiar el estado*/}
-                <View style={styles.activityRight}>
-                  <EstadoPedido />
+                {/* Estado del pedido */}
+                <View style={styles.estadoSection}>
+                  <Text style={styles.sectionLabel}>Estado Actual</Text>
+                  <EstadoPedido 
+                    currentStatus={req?.status} 
+                    pedidoId={req?.id}
+                  />
                 </View>
-                                             
               </View>
             );
           })
@@ -85,96 +120,173 @@ const MisPedidos = () => {
   );
 };
 
-export default MisPedidos;
-
-import { StyleSheet } from "react-native";
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    padding: 20,
+    backgroundColor: "#f8f9fa",
   },
   header: {
-    marginBottom: 20,
+    padding: 20,
+    paddingBottom: 16,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
   },
-  title: { 
-    fontSize: 28, 
-    fontWeight: "bold", 
-    color: "#1A1A1A" 
-  },
-  subtitle: { 
-    fontSize: 18, 
-    fontWeight: "600", 
-    color: theme.colors.primary, 
-    marginTop: 4 
-  },
-  description: { 
-    fontSize: 14, 
-    color: "#666666", 
-    marginTop: 8,
-    lineHeight: 20 
-  },
-  cardsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
-  card: {
-    width: "48%",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  cardValue: {
-    fontSize: 22,
+  title: {
+    fontSize: 28,
     fontWeight: "bold",
-    marginVertical: 5,
+    color: "#1A1A1A",
+    marginBottom: 4,
   },
-  cardChange: {
-    fontSize: 12,
-    color: "#777",
-  },
-  section: {
-    marginTop: 20,
-  },
-  sectionTitle: {
+  subtitle: {
     fontSize: 18,
     fontWeight: "600",
-    marginBottom: 10,
+    color: theme.colors.primary,
+    marginBottom: 4,
   },
-  activityItem: {
+  description: {
+    fontSize: 14,
+    color: "#666666",
+    lineHeight: 20,
+  },
+  section: {
+    padding: 20,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 16,
+  },
+  noPedidos: {
+    color: theme.colors.textMuted,
+    textAlign: "center",
+    padding: 40,
+    fontSize: 16,
+  },
+  pedidoCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#f0f0f0",
+  },
+  pedidoHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
-    backgroundColor: "#f9f9f9",
-    padding: 10,
-    borderRadius: 8,
+    marginBottom: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
-  activityLeft: {
+  pedidoNumero: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1A1A1A",
+  },
+  pedidoFecha: {
+    fontSize: 12,
+    color: "#666666",
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333333",
+    marginBottom: 8,
+  },
+  clienteSection: {
+    marginBottom: 16,
+  },
+  clienteInfo: {
+    fontSize: 14,
+    color: "#555555",
+    marginBottom: 4,
+  },
+  notasText: {
+    fontSize: 13,
+    color: "#666666",
+    fontStyle: "italic",
+    marginTop: 4,
+  },
+  medicamentosSection: {
+    marginBottom: 16,
+  },
+  medicamentoItem: {
+    backgroundColor: "#F8F9FA",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: "#007AFF",
+  },
+  medicamentoNombre: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333333",
+    marginBottom: 4,
+  },
+  medicamentoDetalle: {
+    fontSize: 12,
+    color: "#666666",
+  },
+  noMedicamentos: {
+    fontSize: 14,
+    color: "#999999",
+    fontStyle: "italic",
+    textAlign: "center",
+    padding: 12,
+  },
+  imagenesSection: {
+    marginBottom: 16,
+  },
+  recetaImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  masImagenes: {
+    fontSize: 12,
+    color: "#007AFF",
+    textAlign: "center",
+  },
+  cotizacionSection: {
+    marginBottom: 16,
+    padding: 12,
+    backgroundColor: "#F0F8FF",
+    borderRadius: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: "#28A745",
+  },
+  cotizacionInfo: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
   },
-  activityRight: {
-    alignItems: "flex-end",
-  },
-  status: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    fontSize: 12,
+  cotizacionMonto: {
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#28A745",
+  },
+  cotizacionTiempo: {
+    fontSize: 14,
+    color: "#666666",
+  },
+  estadoSection: {
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
   },
 });
 
+export default MisPedidos;
