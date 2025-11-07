@@ -13,7 +13,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     const mail = email.trim().toLowerCase();
-    const pass = password;    
+    const pass = password;        
 
     try {
       setLoading(true);
@@ -37,6 +37,7 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   };
+
 
   return (
     <View style={globalStyles.container}>

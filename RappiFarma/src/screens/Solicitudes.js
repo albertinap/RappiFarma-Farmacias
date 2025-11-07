@@ -11,6 +11,8 @@ import {
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import { listenPendingRequests } from "../features/requests/listen";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../lib/firebase";
 import RechazarButton from "../components/RechazarButton";
 import CotizacionButton from "../components/CotizacionButton";
 import CotizacionForm from "../components/CotizacionForm";
@@ -22,11 +24,33 @@ const Solicitudes = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [cotizacionModalVisible, setCotizacionModalVisible] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
+  const [nombreFarmacia, setNombreFarmacia] = useState("");
 
   useEffect(() => {
     const unsub = listenPendingRequests(setRequests);
     return () => typeof unsub === "function" && unsub();
   }, []);
+
+  //mini handler para recuperar nombre de farmacia
+  useEffect(() => {
+    const fetchNombreFarmacia = async () => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const docRef = doc(db, "users", user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setNombreFarmacia(docSnap.data().nombreFarmacia); 
+          } else {
+            console.log("No existe el documento del usuario");
+          }
+        }
+      } catch (e) {
+        console.error("Error al obtener nombre de farmacia:", e);
+      }
+    };
+    fetchNombreFarmacia();
+  }, []);  
 
   const handleQuotePress = (request) => {
     setSelectedRequest(request);
@@ -61,7 +85,7 @@ const Solicitudes = () => {
     <>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Farmacia Central</Text>
+          <Text style={styles.title}>{nombreFarmacia || "Cargando..."} </Text>
           <Text style={styles.subtitle}>Solicitudes pendientes</Text>
           <Text style={styles.description}>
             Solicitudes de clientes de pedidos de medicamentos con receta
