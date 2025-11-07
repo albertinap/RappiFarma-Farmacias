@@ -13,7 +13,7 @@ export function listenPendingRequests(cb) {
   const now = Timestamp.now();
 
   const q = query(
-    collection(db, "requests"),    
+    collection(db, "requests"),
     where("expiresAt", ">", now)
   );
 

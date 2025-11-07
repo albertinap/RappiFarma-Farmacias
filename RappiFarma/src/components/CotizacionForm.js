@@ -9,6 +9,8 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import { createOffer } from "../features/offers/actions";
+
 
 const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
   const [medicamentos, setMedicamentos] = useState([
@@ -147,34 +149,41 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
     return formularioValido;
   };
 
-  const handleSubmit = () => {
-    if (!validarFormulario()) {
-      Alert.alert("Error", "Por favor completa todos los campos correctamente");
-      return;
-    }
+const handleSubmit = async () => {
+  if (!validarFormulario()) {
+    Alert.alert("Error", "Por favor completa todos los campos correctamente");
+    return;
+  }
 
-    const montoTotal = calcularTotal();
-    const cotizacionData = {
-      medicamentos: medicamentos.map(med => ({
-        ...med,
-        cantidad: parseInt(med.cantidad),
-        precio: parseFloat(med.precio),
-        subtotal: (parseInt(med.cantidad) * parseFloat(med.precio)).toFixed(2)
-      })),
-      montoTotal,
-      tiempoEspera: parseInt(tiempoEspera),
-      tiempoEsperaTexto: `${tiempoEspera} minutos`,
-      fecha: new Date().toISOString(),
-      requestId: request?.id
-    };
+  const montoTotal = calcularTotal();
+  const cotizacionData = {
+    medicamentos: medicamentos.map(med => ({
+      ...med,
+      cantidad: parseInt(med.cantidad),
+      precio: parseFloat(med.precio),
+      subtotal: (parseInt(med.cantidad) * parseFloat(med.precio)).toFixed(2)
+    })),
+    montoTotal,
+    tiempoEspera: parseInt(tiempoEspera),
+    tiempoEsperaTexto: `${tiempoEspera} minutos`,
+    requestId: request?.id
+  };
 
-    onSubmit(cotizacionData);
-    
-    // Resetear formulario
+  try {
+    await createOffer(cotizacionData);
+    Alert.alert("Éxito", "Cotización enviada");
+
     setMedicamentos([{ nombreydosis: "", cantidad: "", precio: "" }]);
     setTiempoEspera("");
     setErrors({});
-  };
+    onClose();
+  } catch (e) {
+    console.error(e);
+    Alert.alert("Error", e?.message ?? "No se pudo enviar la cotización");
+  }
+};
+
+
 
   const handleClose = () => {
     setMedicamentos([{ nombreydosis: "", cantidad: "", precio: "" }]);
@@ -303,7 +312,7 @@ return (
           {/* Sección de Tiempo de Espera */}
           <View style={styles.tiempoEsperaSection}>
             <Text style={styles.sectionTitle}>Tiempo de Preparación</Text>
-            <Text style={styles.inputLabel}>Tiempo estimado (en minutos)</Text>
+            <Text style={styles.inputLabel}>Tiempo estimado (minutos) *</Text>
             <TextInput
                 placeholder="Ej: 30"
                 placeholderTextColor="#999"
