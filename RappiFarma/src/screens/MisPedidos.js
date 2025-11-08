@@ -37,7 +37,8 @@ const MisPedidos = () => {
             No tienes pedidos adjudicados en este momento.
           </Text>
         ) : (
-          (requests || []).map((req, index) => {            
+          (requests || []).map((req, index) => {     
+            console.log("!!!!!!REQ DATA:", req);       
             return (
               <View
                 key={req?.id ?? String(Math.random())}
@@ -62,11 +63,13 @@ const MisPedidos = () => {
                       ? `${req.user.nombre ?? ""} ${req.user.apellido ?? ""}`.trim()
                     : `Cliente #${index + 1}`} 
                   </Text>
+                                    
                   <Text style={styles.clienteInfo}>
-                    📞 {req?.telefono || "Teléfono no disponible"}
+                    📞 {`${req.user.telefono}`.trim() || "Teléfono no disponible"}
                   </Text>
+
                   <Text style={styles.clienteInfo}>
-                    📍 {req?.direccion || "Dirección no disponible"}
+                    📍 { `${req.user.direccion}`.trim() || "Dirección no disponible"}
                   </Text>
                 </View>
 
