@@ -53,10 +53,10 @@ export const aceptarSolicitud = async (request, cotizacionData, nombreFarmacia) 
   try {
     const requestId = request.id;
 
-    // Crear documento en "pedidos"
-    await setDoc(doc(db, "pedidos", requestId), {
+    // Crear documento en "offers"
+    await setDoc(doc(db, "offers", requestId), {
       ...request,
-      estado: "pendiente",
+      estado: "Pendiente",
       cotizacion: cotizacionData,
       farmacia: nombreFarmacia ?? "",
       fechaCotizacion: new Date(),
@@ -81,7 +81,7 @@ export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
     userId: request.userId,
     farmacia: nombreFarmacia || "Farmacia desconocida",
     detalle: motivo,
-    estado: "rechazada",
+    state: "Rechazada",
     createdAt: serverTimestamp(),
   });
 

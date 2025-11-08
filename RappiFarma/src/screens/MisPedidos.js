@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { listenPendingRequests } from "../features/requests/listen";
+import { listenPendingOffers } from "../features/requests/listen";
 import { aceptarSolicitud, rechazarSolicitud } from "../features/offers/actions";
 import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
@@ -8,10 +8,11 @@ import EstadoPedido from "../components/EstadoPedido";
 
 const MisPedidos = () => {
   const [requests, setRequests] = useState([]);
+  const [offers, setOffers] = useState([]);
   const userData = useUser(); //datos de la farmacia que los busco una única vez
 
   useEffect(() => {
-    const unsub = listenPendingRequests(setRequests);
+    const unsub = listenPendingOffers(setOffers);
     return () => {
       if (typeof unsub === "function") unsub();
     };
@@ -32,24 +33,24 @@ const MisPedidos = () => {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Mis pedidos</Text>
 
-        {Array.isArray(requests) && requests.length === 0 ? (
+        {Array.isArray(offers) && offers.length === 0 ? (
           <Text style={styles.noPedidos}>
             No tienes pedidos adjudicados en este momento.
           </Text>
         ) : (
-          (requests || []).map((req, index) => {     
-            console.log("!!!!!!REQ DATA:", req);       
+          (offers || []).map((offer, index) => {     
+            console.log("!!!!!!OFFER DATA:", offer);       
             return (
               <View
-                key={req?.id ?? String(Math.random())}
+                key={offer?.id ?? String(Math.random())}
                 style={styles.pedidoCard}
               >
                 {/* Header del pedido */}
                 <View style={styles.pedidoHeader}>
                   <Text style={styles.pedidoNumero}>Pedido #{index + 1}</Text>
                   <Text style={styles.pedidoFecha}>
-                    {req?.createdAt
-                      ? `${req.createdAt.toDate().toLocaleDateString()} - ${req.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}hs`
+                    {offer?.timeStamp
+                      ? `${offer.timeStamp.toDate().toLocaleDateString()} - ${offer.timeStamp.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}hs`
                     : "Sin fecha"}
                   </Text>
                 </View>              
@@ -59,28 +60,28 @@ const MisPedidos = () => {
                   <Text style={styles.sectionLabel}>Información del Cliente</Text>
                   <Text style={styles.detailText}>
                     <Text style={styles.clienteInfo}>Nombre y apellido: </Text>
-                    {req.user
-                      ? `${req.user.nombre ?? ""} ${req.user.apellido ?? ""}`.trim()
+                    {offer.user
+                      ? `${offer.user.nombre ?? ""} ${offer.user.apellido ?? ""}`.trim()
                     : `Cliente #${index + 1}`} 
                   </Text>
                                     
                   <Text style={styles.clienteInfo}>
-                    📞 {`${req.user.telefono}`.trim() || "Teléfono no disponible"}
+                    📞 {`${offer.user.telefono}`.trim() || "Teléfono no disponible"}
                   </Text>
 
                   <Text style={styles.clienteInfo}>
-                    📍 { `${req.user.direccion}`.trim() || "Dirección no disponible"}
+                    📍 { `${offer.user.direccion}`.trim() || "Dirección no disponible"}
                   </Text>
                 </View>
 
                 {/* Medicamentos solicitados */}
                 <View style={styles.medicamentosSection}>
                   <Text style={styles.sectionLabel}>Medicamentos Solicitados</Text>
-                  {req?.medicamentos?.length > 0 ? (
-                    req.medicamentos.map((med, medIndex) => (
+                  {offer?.medicamentos?.length > 0 ? (
+                    offer.medicamentos.map((med, medIndex) => (
                       <View key={medIndex} style={styles.medicamentoItem}>
                         <Text style={styles.medicamentoNombre}>
-                          💊 {med.nombre || "Medicamento no especificado"}
+                          💊 {med.nombreydosis || "Medicamento no especificado"}
                         </Text>
                         <Text style={styles.medicamentoDetalle}>
                           Cantidad: {med.cantidad || "No especificada"} • 
@@ -100,10 +101,10 @@ const MisPedidos = () => {
                   <Text style={styles.sectionLabel}>Mi Cotización</Text>
                   <View style={styles.cotizacionInfo}>
                     <Text style={styles.cotizacionMonto}>
-                      Monto total: $ {req?.quoteAmount || "0.00"}
+                      Monto total: $ {offer?.preciototal || "0.00"}
                     </Text>
                     <Text style={styles.cotizacionTiempo}>
-                      ⏱️ Tiempo estimado: {req?.deliveryTime || "No especificado"}
+                      ⏱️ Tiempo estimado: {offer?.tiempoEspera || "No especificado"} min
                     </Text>
                   </View>
                 </View>
@@ -112,8 +113,8 @@ const MisPedidos = () => {
                 <View style={styles.estadoSection}>
                   <Text style={styles.sectionLabel}>Estado Actual</Text>
                   <EstadoPedido 
-                    currentStatus={req?.status} 
-                    pedidoId={req?.id}
+                    currentStatus={offer?.state} 
+                    pedidoId={offer?.id}
                   />
                 </View>
               </View>

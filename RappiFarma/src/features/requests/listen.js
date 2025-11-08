@@ -48,3 +48,42 @@ export function listenPendingRequests(cb) {
     cb(requests);
   });
 }
+
+export function listenPendingOffers(cb) {
+  const now = Timestamp.now();
+
+  const q = query(
+    collection(db, "offers"),
+    where("state", "in", ["Pendiente", "En preparación", "Listo para el envío", "Enviando"])   
+  );
+
+  return onSnapshot(q, async (snap) => {
+    const offers = await Promise.all(
+      snap.docs.map(async (d) => {
+        const data = d.data();
+
+        // Busco el usuario correspondiente si existe userId
+        let userData = null;
+        if (data.userId) {
+          try {
+            const userRef = doc(db, "users", data.userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+              userData = userSnap.data();
+            }
+          } catch (err) {
+            console.error("Error al obtener usuario:", err);
+          }
+        }
+
+        return {
+          id: d.id,
+          ...data,
+          user: userData, 
+        };
+      })
+    );
+
+    cb(offers);
+  });
+}
