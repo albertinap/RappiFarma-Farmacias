@@ -112,10 +112,10 @@ const MisPedidos = () => {
                 {/* Estado del pedido */}
                 <View style={styles.estadoSection}>
                   <Text style={styles.sectionLabel}>Estado Actual</Text>
-                  <EstadoPedido 
-                    currentStatus={offer?.state} 
-                    pedidoId={offer?.id}
-                  />
+                  <EstadoPedido
+                      offerId={offer?.id}
+                      initialEstado={offer?.envioState ?? "Pendiente"}
+                   />
                 </View>
               </View>
             );

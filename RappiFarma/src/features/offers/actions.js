@@ -1,5 +1,5 @@
 import { auth, db } from "../../lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, getDoc, deleteDoc} from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc,  deleteDoc} from "firebase/firestore";
 
 export async function createOffer(cotizacionData) {
   const user = auth.currentUser;
@@ -41,6 +41,7 @@ export async function createOffer(cotizacionData) {
 
     // estado y timestamp
     state: "Pendiente",
+    envioState: "Pendiente",
     timeStamp: serverTimestamp(),
   };
 
@@ -72,6 +73,17 @@ export const aceptarSolicitud = async (request, cotizacionData, nombreFarmacia) 
   }
 };
 
+export async function cambiarEnvioState(offerId, nuevoEstado) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("NO_AUTENTICADO");
+  if (!offerId) throw new Error("FALTA_OFFER_ID");
+
+  await updateDoc(doc(db, "offers", offerId), {
+    envioState: nuevoEstado,
+    envioStateUpdatedAt: serverTimestamp(),
+  });
+}
+
 export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
   if (!request?.id) throw new Error("Solicitud inválida");
 
@@ -87,4 +99,6 @@ export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
 
   //Elimino la solicitud original de 'requests'
   await deleteDoc(doc(db, "requests", request.id));
+
+  
 }
