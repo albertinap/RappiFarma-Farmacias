@@ -1,91 +1,85 @@
-import { 
-  ScrollView, 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  Modal, 
-  Pressable, 
-  TouchableOpacity 
-} from "react-native";
+import {ScrollView, View, Text, StyleSheet, Image, Modal, Pressable, TouchableOpacity} from "react-native";
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import { listenPendingRequests } from "../features/requests/listen";
-import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../lib/firebase";
-import RechazarButton from "../components/RechazarButton";
-import CotizacionButton from "../components/CotizacionButton";
+import { aceptarSolicitud, rechazarSolicitud } from "../features/offers/actions";
+import { useUser } from "../context/UserContext";
+import RechazarButton from "../components/buttons/RechazarButton";
+import CotizacionButton from "../components/buttons/CotizacionButton";
 import CotizacionForm from "../components/CotizacionForm";
 import { theme } from "../styles/theme";
 
-const Solicitudes = () => {
-  const [requests, setRequests] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [cotizacionModalVisible, setCotizacionModalVisible] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState(null);
-  const [nombreFarmacia, setNombreFarmacia] = useState("");
 
-  useEffect(() => {
-    const unsub = listenPendingRequests(setRequests);
-    return () => typeof unsub === "function" && unsub();
-  }, []);
+  const Solicitudes = () => {
+    const [requests, setRequests] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [cotizacionModalVisible, setCotizacionModalVisible] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const userData = useUser(); //datos de la farmacia que los busco una única vez
 
-  //mini handler para recuperar nombre de farmacia
-  useEffect(() => {
-    const fetchNombreFarmacia = async () => {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setNombreFarmacia(docSnap.data().nombreFarmacia); 
-          } else {
-            console.log("No existe el documento del usuario");
-          }
-        }
-      } catch (e) {
-        console.error("Error al obtener nombre de farmacia:", e);
-      }
+
+    useEffect(() => {
+      const unsub = listenPendingRequests(setRequests);
+      return () => typeof unsub === "function" && unsub();
+    }, []);
+
+    const handleQuotePress = (request) => {
+      setSelectedRequest(request);
+      setCotizacionModalVisible(true);
     };
-    fetchNombreFarmacia();
-  }, []);  
 
-  const handleQuotePress = (request) => {
-    setSelectedRequest(request);
-    setCotizacionModalVisible(true);
+    const handleQuoteSubmit = async (cotizacionData) => {
+    try {
+      await aceptarSolicitud(selectedRequest, cotizacionData, userData?.nombreFarmacia);
+      setRequests((prev) => prev.filter((r) => r.id !== selectedRequest.id));
+
+      Toast.show({
+        type: "success",
+        text1: "Cotización enviada",
+        text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
+        position: "top",
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error al enviar cotización",
+        text2: error.message || "Intentá nuevamente.",
+      });
+    } finally {
+      setCotizacionModalVisible(false);
+      setSelectedRequest(null);
+    }
   };
 
-  const handleQuoteSubmit = (cotizacionData) => {
-    console.log("Cotización enviada:", cotizacionData);
-    
-    Toast.show({
-      type: "success",
-      text1: "Cotización enviada",
-      text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
-      position: "top",
-    });
-    
-    setCotizacionModalVisible(false);
-    setSelectedRequest(null);
-  };
+  const handleRejectConfirm = async (request, motivo) => {
+    try {
+      await rechazarSolicitud(request, userData?.nombreFarmacia, motivo);
+      setRequests((prev) => prev.filter((r) => r.id !== request.id));
 
-  const handleReject = (request) => {
-    console.log("Pedido rechazado:", request?.id);
-    
-    Toast.show({
-      type: "info",
-      text1: "Pedido rechazado",
-      position: "top",
-    });
+      Toast.show({
+        type: "info",
+        text1: "Solicitud rechazada",
+        text2: motivo,
+        position: "top",
+      });
+    } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error al rechazar",
+        text2: error.message || "Intentá de nuevo",
+      });
+    } finally {
+      setRechazoModalVisible(false);
+      setRequestToReject(null);
+    }
   };
 
   return (
     <>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>{nombreFarmacia || "Cargando..."} </Text>
+          <Text style={styles.title}>{userData?.nombreFarmacia || "Cargando..."} </Text>
           <Text style={styles.subtitle}>Solicitudes pendientes</Text>
           <Text style={styles.description}>
             Solicitudes de clientes de pedidos de medicamentos con receta
@@ -165,8 +159,8 @@ const Solicitudes = () => {
                       />
                       <RechazarButton
                         request={req}
-                        onReject={() => handleReject(req)}
-                        buttonStyle={styles.rejectButton}                        
+                        buttonStyle={styles.rejectButton}
+                        onConfirm={async (motivo) => await handleRejectConfirm(req, motivo)}
                       />
                     </View>
                   </View>
@@ -205,6 +199,7 @@ const Solicitudes = () => {
         onSubmit={handleQuoteSubmit}
         request={selectedRequest}
       />
+
     </>
   );
 };

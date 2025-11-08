@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { listenPendingRequests } from "../features/requests/listen";
-import { auth, db } from "../lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { aceptarSolicitud, rechazarSolicitud } from "../features/offers/actions";
+import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
 import EstadoPedido from "../components/EstadoPedido";
 
 const MisPedidos = () => {
   const [requests, setRequests] = useState([]);
-  const [nombreFarmacia, setNombreFarmacia] = useState("");
+  const userData = useUser(); //datos de la farmacia que los busco una única vez
 
   useEffect(() => {
     const unsub = listenPendingRequests(setRequests);
@@ -17,33 +17,11 @@ const MisPedidos = () => {
     };
   }, []);
 
-  //mini handler para recuperar nombre de farmacia
-  useEffect(() => {
-    const fetchNombreFarmacia = async () => {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const docRef = doc(db, "users", user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setNombreFarmacia(docSnap.data().nombreFarmacia); 
-          } else {
-            console.log("No existe el documento del usuario");
-          }
-        }
-      } catch (e) {
-        console.error("Error al obtener nombre de farmacia:", e);
-      }
-    };
-    fetchNombreFarmacia();
-  }, []);
-
-
   return (
     <ScrollView style={styles.container}>
       {/* Header con el nombre de la farmacia */}
       <View style={styles.header}>
-        <Text style={styles.title}>{nombreFarmacia || "Cargando..."} </Text>
+        <Text style={styles.title}>{userData?.nombreFarmacia || "Cargando..."} </Text>
         <Text style={styles.subtitle}>Administración y gestión de pedidos adjudicados</Text>
         <Text style={styles.description}>
           Actualiza el estado de cada pedido en tiempo real
