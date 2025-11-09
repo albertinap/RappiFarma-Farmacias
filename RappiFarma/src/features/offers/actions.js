@@ -57,14 +57,14 @@ export const aceptarSolicitud = async (request, cotizacionData, nombreFarmacia) 
     // Crear documento en "offers"
     await setDoc(doc(db, "offers", requestId), {
       ...request,
-      estado: "Pendiente",
+      state: "Pendiente",
       cotizacion: cotizacionData,
       farmacia: nombreFarmacia ?? "",
       fechaCotizacion: new Date(),
     });
 
-    // Eliminar de "pendingRequests"
-    await deleteDoc(doc(db, "pendingRequests", requestId));
+    // Eliminar de "requests"
+    await deleteDoc(doc(db, "requests", requestId));
 
     return true;
   } catch (error) {
@@ -99,6 +99,4 @@ export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
 
   //Elimino la solicitud original de 'requests'
   await deleteDoc(doc(db, "requests", request.id));
-
-  
 }

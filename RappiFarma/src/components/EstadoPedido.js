@@ -31,8 +31,7 @@ const EstadoPedido = ({ offerId, initialEstado = "Pendiente" }) => {
           style={styles.picker}
           dropdownIconColor="#666"
           onValueChange={onChange}
-        >
-          <Picker.Item label="Pendiente" value="Pendiente" />
+        >          
           <Picker.Item label="En preparación" value="En preparación" />
           <Picker.Item label="Listo para envío" value="Listo para envío" />
           <Picker.Item label="Enviando" value="Enviando" />

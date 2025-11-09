@@ -3,8 +3,8 @@ import { View, StyleSheet } from "react-native";
 import Sidebar from "../components/Sidebar";
 import MisPedidos from "./MisPedidos";
 import Solicitudes from "./Solicitudes";
-//import Gestion from "./"
-// en el futuro: import CotizacionesContent, AdjudicadosContent, etc.
+import Pendientes from "./Pendientes";
+import Historial from "./Historial";
 
 export default function HomeScreen() {
   const [active, setActive] = useState("MisPedidos");
@@ -14,7 +14,11 @@ export default function HomeScreen() {
       case "Solicitudes":
         return <Solicitudes />;
       case "MisPedidos":
-        return <MisPedidos />;      
+        return <MisPedidos />;
+      case "Pendientes":
+        return <Pendientes />;  
+      case "Historial":
+        return <Historial />;            
       default:
         return <MisPedidos />;
     }

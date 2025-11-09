@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { listenPendingOffers } from "../features/requests/listen";
-import { aceptarSolicitud, rechazarSolicitud } from "../features/offers/actions";
 import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
-import EstadoPedido from "../components/EstadoPedido";
 
-const MisPedidos = () => {  
+const Pendientes = () => {  
   const [offers, setOffers] = useState([]);
   const userData = useUser(); //datos de la farmacia que los busco una única vez
 
@@ -22,29 +20,26 @@ const MisPedidos = () => {
       {/* Header con el nombre de la farmacia */}
       <View style={styles.header}>
         <Text style={styles.title}>{userData?.nombreFarmacia || "Cargando..."} </Text>
-        <Text style={styles.subtitle}>Administración y gestión de pedidos adjudicados</Text>
+        <Text style={styles.subtitle}>Administración y gestión de pedidos pendientes</Text>
         <Text style={styles.description}>
-          Actualiza el estado de cada pedido en tiempo real
+          Pedidos en espera de confirmación por parte del cliente
         </Text>
       </View>      
 
-      {/* Los pedidos que está administrando ahora la farmacia */}
+      {/* Los pedidos que están en estados pendiente*/}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Mis pedidos</Text>
+        <Text style={styles.sectionTitle}>Mis pedidos pendientes</Text>
 
         {Array.isArray(offers) && offers.length === 0 ? (
           <Text style={styles.noPedidos}>
-            No tienes pedidos adjudicados en este momento.
+            No tienes pedidos pendientes en este momento.
           </Text>
         ) : (
           (offers || [])
-            .filter((offer) => {
-              const estado = offer?.envioState?.toLowerCase();
-              return estado !== "pendiente" && estado !== "entregado";
-            })
+            .filter((offer) => offer?.envioState === "Pendiente")
             .map((offer, index) => {     
-            console.log("STATE de cada offer:", offer.envioState);
-            console.log("!!!!!!OFFER DATA:", offer);       
+            console.log("!!!!!!OFFER DATA:", offer); 
+                  
             return (
               <View
                 key={offer?.id ?? String(Math.random())}
@@ -116,11 +111,7 @@ const MisPedidos = () => {
 
                 {/* Estado del pedido */}
                 <View style={styles.estadoSection}>
-                  <Text style={styles.sectionLabel}>Estado Actual</Text>
-                  <EstadoPedido
-                      offerId={offer?.id}
-                      initialEstado={offer?.envioState ?? "En preparación"}
-                   />
+                  <Text style={styles.sectionLabel}>Estado Actual: {offer?.envioState || "No especificado"}</Text>            
                 </View>
               </View>
             );
@@ -297,7 +288,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: "#f0f0f0",
-  },
+  },  
 });
 
-export default MisPedidos;
+export default Pendientes;

@@ -24,11 +24,13 @@ import { theme } from "../styles/theme";
       return () => typeof unsub === "function" && unsub();
     }, []);
 
+    //cuando aprieto el boton hago visible el form de cotizacion
     const handleQuotePress = (request) => {
       setSelectedRequest(request);
       setCotizacionModalVisible(true);
     };
 
+    //funcion que dispara el form
     const handleQuoteSubmit = async (cotizacionData) => {
     try {
       await aceptarSolicitud(selectedRequest, cotizacionData, userData?.nombreFarmacia);
@@ -70,8 +72,7 @@ import { theme } from "../styles/theme";
         text2: error.message || "Intentá de nuevo",
       });
     } finally {
-      setRechazoModalVisible(false);
-      setRequestToReject(null);
+      setSelectedRequest(null);
     }
   };
 
