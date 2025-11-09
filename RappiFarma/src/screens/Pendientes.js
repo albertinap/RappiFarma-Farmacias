@@ -36,7 +36,7 @@ const Pendientes = () => {
           </Text>
         ) : (
           (offers || [])
-            .filter((offer) => offer?.envioState === "Pendiente")
+            .filter((offer) => offer?.state === "Pendiente") //acá si el usuario acepta el state cambia de pendiente a aceptada
             .map((offer, index) => {     
             console.log("!!!!!!OFFER DATA:", offer); 
                   

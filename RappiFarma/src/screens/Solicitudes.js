@@ -2,7 +2,7 @@ import {ScrollView, View, Text, StyleSheet, Image, Modal, Pressable, TouchableOp
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 import { listenPendingRequests } from "../features/requests/listen";
-import { aceptarSolicitud, rechazarSolicitud } from "../features/offers/actions";
+import { rechazarSolicitud } from "../features/offers/actions";
 import { useUser } from "../context/UserContext";
 import RechazarButton from "../components/buttons/RechazarButton";
 import CotizacionButton from "../components/buttons/CotizacionButton";
@@ -10,7 +10,7 @@ import CotizacionForm from "../components/CotizacionForm";
 import { theme } from "../styles/theme";
 
 
-  const Solicitudes = () => {
+const Solicitudes = () => {
     const [requests, setRequests] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -30,7 +30,7 @@ import { theme } from "../styles/theme";
       setCotizacionModalVisible(true);
     };
 
-    //funcion que dispara el form
+    /*/funcion que dispara el form
     const handleQuoteSubmit = async (cotizacionData) => {
     try {
       await aceptarSolicitud(selectedRequest, cotizacionData, userData?.nombreFarmacia);
@@ -43,6 +43,30 @@ import { theme } from "../styles/theme";
         position: "top",
       });
     } catch (error) {
+      Toast.show({
+        type: "error",
+        text1: "Error al enviar cotización",
+        text2: error.message || "Intentá nuevamente.",
+      });
+    } finally {
+      setCotizacionModalVisible(false);
+      setSelectedRequest(null);
+    }
+  };*/
+
+  const handleQuoteSubmit = async (cotizacionData) => {
+    try {
+      // Solo optimistic update - createOffer ya se ejecutó en el modal
+      setRequests((prev) => prev.filter((r) => r.id !== selectedRequest.id));
+
+      Toast.show({
+        type: "success",
+        text1: "Cotización enviada",
+        text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
+        position: "top",
+      });
+    } catch (error) {
+      console.error("Error en handleQuoteSubmit:", error);
       Toast.show({
         type: "error",
         text1: "Error al enviar cotización",

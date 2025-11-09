@@ -1,6 +1,7 @@
 import { auth, db } from "../../lib/firebase";
 import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc,  deleteDoc} from "firebase/firestore";
 
+//esta función crea la oferta a partir de la información de la cotización, y elimina la request base
 export async function createOffer(cotizacionData) {
   const user = auth.currentUser;
   if (!user) throw new Error("NO_AUTENTICADO");
@@ -45,43 +46,21 @@ export async function createOffer(cotizacionData) {
     timeStamp: serverTimestamp(),
   };
 
-  const ref = await addDoc(collection(db, "offers"), payload);
-  return { offerId: ref.id };
-}
+   try {
+    // Crear la oferta
+    const ref = await addDoc(collection(db, "offers"), payload);
+    console.log("✅ Oferta creada con ID:", ref.id);
 
-//función de aceptar solicitud y enviar cotización. Muevo oferta de solicitudes-->pedidos
-export const aceptarSolicitud = async (request, cotizacionData, nombreFarmacia) => {
-  try {
-    const requestId = request.id;
+    // ELIMINAR LA REQUEST
+    const reqRef = doc(db, "requests", requestId);
+    await deleteDoc(reqRef);
+    console.log("🗑️ Request eliminada:", requestId);
 
-    // Crear documento en "offers"
-    await setDoc(doc(db, "offers", requestId), {
-      ...request,
-      state: "Pendiente",
-      cotizacion: cotizacionData,
-      farmacia: nombreFarmacia ?? "",
-      fechaCotizacion: new Date(),
-    });
-
-    // Eliminar de "requests"
-    await deleteDoc(doc(db, "requests", requestId));
-
-    return true;
+    return { offerId: ref.id };
   } catch (error) {
-    console.error("Error al aceptar solicitud:", error);
+    console.error("Error en createOffer:", error);
     throw error;
   }
-};
-
-export async function cambiarEnvioState(offerId, nuevoEstado) {
-  const user = auth.currentUser;
-  if (!user) throw new Error("NO_AUTENTICADO");
-  if (!offerId) throw new Error("FALTA_OFFER_ID");
-
-  await updateDoc(doc(db, "offers", offerId), {
-    envioState: nuevoEstado,
-    envioStateUpdatedAt: serverTimestamp(),
-  });
 }
 
 export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
@@ -99,4 +78,15 @@ export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
 
   //Elimino la solicitud original de 'requests'
   await deleteDoc(doc(db, "requests", request.id));
+}
+
+export async function cambiarEnvioState(offerId, nuevoEstado) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("NO_AUTENTICADO");
+  if (!offerId) throw new Error("FALTA_OFFER_ID");
+
+  await updateDoc(doc(db, "offers", offerId), {
+    envioState: nuevoEstado,
+    envioStateUpdatedAt: serverTimestamp(),
+  });
 }

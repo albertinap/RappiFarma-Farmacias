@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { listenPendingOffers } from "../features/requests/listen";
-import { aceptarSolicitud, rechazarSolicitud } from "../features/offers/actions";
 import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
 import EstadoPedido from "../components/EstadoPedido";

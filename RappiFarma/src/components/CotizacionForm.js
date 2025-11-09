@@ -9,10 +9,10 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { createOffer } from "../features/offers/actions";
+import { createOffer } from "../features/offers/actions"; //santi hijo de puta
 
 
-const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
+const CotizacionForm = ({ visible, onClose, request }) => {
   const [medicamentos, setMedicamentos] = useState([
     { nombreydosis: "", cantidad: "", precio: "" },
   ]);
@@ -149,7 +149,7 @@ const CotizacionForm = ({ visible, onClose, onSubmit, request }) => {
     return formularioValido;
   };
 
-const handleSubmit = async () => {
+  const handleSubmit = async () => {
   if (!validarFormulario()) {
     Alert.alert("Error", "Por favor completa todos los campos correctamente");
     return;
@@ -182,8 +182,6 @@ const handleSubmit = async () => {
     Alert.alert("Error", e?.message ?? "No se pudo enviar la cotización");
   }
 };
-
-
 
   const handleClose = () => {
     setMedicamentos([{ nombreydosis: "", cantidad: "", precio: "" }]);
