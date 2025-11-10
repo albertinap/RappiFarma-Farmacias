@@ -38,13 +38,13 @@ const MisPedidos = () => {
         ) : (
           (offers || [])
             .filter((offer) => {
-              const estado = offer?.envioState?.toLowerCase();
-              return estado !== "pendiente" && estado !== "entregado";
+              const estado = offer?.state?.toLowerCase();
+              const estadoEnvio = offer?.envioState?.toLowerCase();
+              return estado === "aceptada" && estadoEnvio !== "entregado";
             })
             .map((offer, index) => {     
-            console.log("STATE de cada offer:", offer.envioState);
-            console.log("!!!!!!OFFER DATA:", offer);       
-            return (
+
+            return (              
               <View
                 key={offer?.id ?? String(Math.random())}
                 style={styles.pedidoCard}

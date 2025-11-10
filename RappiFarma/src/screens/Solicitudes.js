@@ -30,30 +30,6 @@ const Solicitudes = () => {
       setCotizacionModalVisible(true);
     };
 
-    /*/funcion que dispara el form
-    const handleQuoteSubmit = async (cotizacionData) => {
-    try {
-      await aceptarSolicitud(selectedRequest, cotizacionData, userData?.nombreFarmacia);
-      setRequests((prev) => prev.filter((r) => r.id !== selectedRequest.id));
-
-      Toast.show({
-        type: "success",
-        text1: "Cotización enviada",
-        text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
-        position: "top",
-      });
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Error al enviar cotización",
-        text2: error.message || "Intentá nuevamente.",
-      });
-    } finally {
-      setCotizacionModalVisible(false);
-      setSelectedRequest(null);
-    }
-  };*/
-
   const handleQuoteSubmit = async (cotizacionData) => {
     try {
       // Solo optimistic update - createOffer ya se ejecutó en el modal

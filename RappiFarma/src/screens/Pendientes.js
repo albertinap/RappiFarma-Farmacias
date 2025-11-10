@@ -66,11 +66,11 @@ const Pendientes = () => {
                   </Text>
                                     
                   <Text style={styles.clienteInfo}>
-                    📞 {`${offer.user.telefono}`.trim() || "Teléfono no disponible"}
+                   📞 {offer?.user?.telefono?.trim?.() || "Teléfono no disponible"}
                   </Text>
 
                   <Text style={styles.clienteInfo}>
-                    📍 { `${offer.user.direccion}`.trim() || "Dirección no disponible"}
+                    📍 {offer?.user?.direccion?.trim?.() || "Dirección no disponible"}
                   </Text>
                 </View>
 

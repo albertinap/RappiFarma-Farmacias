@@ -1,5 +1,6 @@
 import { auth, db } from "../../lib/firebase";
 import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc,  deleteDoc} from "firebase/firestore";
+import Toast from "react-native-toast-message";
 
 //esta función crea la oferta a partir de la información de la cotización, y elimina la request base
 export async function createOffer(cotizacionData) {
@@ -55,10 +56,20 @@ export async function createOffer(cotizacionData) {
     const reqRef = doc(db, "requests", requestId);
     await deleteDoc(reqRef);
     console.log("🗑️ Request eliminada:", requestId);
-
+    Toast.show({
+      type: "success",
+      text1: "Cotización enviada",
+      text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
+      position: "top",
+    });                  
     return { offerId: ref.id };
   } catch (error) {
     console.error("Error en createOffer:", error);
+    Toast.show({
+      type: "error",
+      text1: "Error al enviar cotización",
+      text2: error.message || "Intentá nuevamente.",
+    });
     throw error;
   }
 }

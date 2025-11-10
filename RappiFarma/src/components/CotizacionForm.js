@@ -9,7 +9,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { createOffer } from "../features/offers/actions"; //santi hijo de puta
+import { createOffer } from "../features/offers/actions"; //santi, te quiero
 
 
 const CotizacionForm = ({ visible, onClose, request }) => {

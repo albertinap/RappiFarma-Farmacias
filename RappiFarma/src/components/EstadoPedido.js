@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { cambiarEnvioState } from "../features/offers/actions";
 
-const EstadoPedido = ({ offerId, initialEstado = "Pendiente" }) => {
+const EstadoPedido = ({ offerId, initialEstado = "En preparación" }) => {
   const [estado, setEstado] = useState(initialEstado);
   const [saving, setSaving] = useState(false);
 
@@ -31,7 +31,7 @@ const EstadoPedido = ({ offerId, initialEstado = "Pendiente" }) => {
           style={styles.picker}
           dropdownIconColor="#666"
           onValueChange={onChange}
-        >          
+        >                  
           <Picker.Item label="En preparación" value="En preparación" />
           <Picker.Item label="Listo para envío" value="Listo para envío" />
           <Picker.Item label="Enviando" value="Enviando" />

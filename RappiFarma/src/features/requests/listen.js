@@ -15,7 +15,6 @@ export function listenPendingRequests(cb) {
   const q = query(
     collection(db, "requests"),
     where("expiresAt", ">", now),
-    //where("rechazada", "==", false) //las solicitudes que fueron rechazadas no se muestran
   );
 
   return onSnapshot(q, async (snap) => {
@@ -54,7 +53,7 @@ export function listenPendingOffers(cb) {
 
   const q = query(
     collection(db, "offers"),
-    where("state", "in", ["Pendiente", "En preparación", "Listo para el envío", "Enviando"])   
+    where("envioState", "in", ["Pendiente", "En preparación", "Listo para envío", "Enviando", "Entregado"])   
   );
 
   return onSnapshot(q, async (snap) => {
