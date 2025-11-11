@@ -72,13 +72,16 @@ export default function LoginScreen({ navigation }) {
         <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
           <Text style={styles.buttonText}>{loading ? "..." : "Iniciar sesión"}</Text>
         </TouchableOpacity>
-
+        
+        {/*
         <Text style={styles.registerText}>
           ¿No tenés cuenta?
           <TouchableOpacity onPress={() => navigation.navigate("Register")}>
             <Text style={styles.registerLink}> Registrate</Text>
           </TouchableOpacity>
         </Text>
+        */}  
+
       </View>      
     </View>
   );
