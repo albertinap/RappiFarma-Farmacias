@@ -37,6 +37,7 @@ export async function createOffer(cotizacionData) {
     tiempoEspera,            // minutos
 
     // datos derivados
+    requestId, 
     userId,                  // dueño del pedido
     farmacia: farmaciaNombre,
     direccion: farmaciaDireccion,
@@ -52,10 +53,6 @@ export async function createOffer(cotizacionData) {
     const ref = await addDoc(collection(db, "offers"), payload);
     console.log("✅ Oferta creada con ID:", ref.id);
 
-    // ELIMINAR LA REQUEST
-    const reqRef = doc(db, "requests", requestId);
-    await deleteDoc(reqRef);
-    console.log("🗑️ Request eliminada:", requestId);
     Toast.show({
       type: "success",
       text1: "Cotización enviada",

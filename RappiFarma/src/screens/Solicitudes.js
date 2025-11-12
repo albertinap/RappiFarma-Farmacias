@@ -1,40 +1,60 @@
-import {ScrollView, View, Text, StyleSheet, Image, Modal, Pressable, TouchableOpacity} from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
-import { listenPendingRequests } from "../features/requests/listen";
 import { rechazarSolicitud } from "../features/offers/actions";
 import { useUser } from "../context/UserContext";
 import RechazarButton from "../components/buttons/RechazarButton";
 import CotizacionButton from "../components/buttons/CotizacionButton";
 import CotizacionForm from "../components/CotizacionForm";
 import { theme } from "../styles/theme";
-
+import { auth, db } from "../lib/firebase";
+import { listenInboxRequests } from "../features/inbox/listen";
+import { doc, getDoc } from "firebase/firestore";
 
 const Solicitudes = () => {
-    const [requests, setRequests] = useState([]);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [cotizacionModalVisible, setCotizacionModalVisible] = useState(false);
-    const [selectedRequest, setSelectedRequest] = useState(null);
-    const userData = useUser(); //datos de la farmacia que los busco una única vez
+  const [requests, setRequests] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [cotizacionModalVisible, setCotizacionModalVisible] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const userData = useUser(); // datos de la farmacia
 
+  // Listener a la bandeja de inbox de la farmacia
+  useEffect(() => {
+    const uidFarmacia = auth.currentUser?.uid ?? userData?.uid;
+    if (!uidFarmacia) return;
+    const unsub = listenInboxRequests(uidFarmacia, setRequests);
+    return () => typeof unsub === "function" && unsub();
+  }, [userData?.uid]);
 
-    useEffect(() => {
-      const unsub = listenPendingRequests(setRequests);
-      return () => typeof unsub === "function" && unsub();
-    }, []);
-
-    //cuando aprieto el boton hago visible el form de cotizacion
-    const handleQuotePress = (request) => {
-      setSelectedRequest(request);
+  // Abrir formulario de cotización
+  const handleQuotePress = async (ptr) => {
+    try {
+      const snap = await getDoc(doc(db, "requests", ptr.requestId));
+      const master = snap.exists() ? { id: snap.id, ...snap.data() } : null;
+      setSelectedRequest({ ...ptr, master });
       setCotizacionModalVisible(true);
-    };
+    } catch (e) {
+      console.error("Error al cargar el pedido:", e);
+      Toast.show({
+        type: "error",
+        text1: "No se pudo cargar el pedido",
+      });
+    }
+  };
 
   const handleQuoteSubmit = async (cotizacionData) => {
     try {
-      // Solo optimistic update - createOffer ya se ejecutó en el modal
       setRequests((prev) => prev.filter((r) => r.id !== selectedRequest.id));
-
       Toast.show({
         type: "success",
         text1: "Cotización enviada",
@@ -58,7 +78,6 @@ const Solicitudes = () => {
     try {
       await rechazarSolicitud(request, userData?.nombreFarmacia, motivo);
       setRequests((prev) => prev.filter((r) => r.id !== request.id));
-
       Toast.show({
         type: "info",
         text1: "Solicitud rechazada",
@@ -80,7 +99,9 @@ const Solicitudes = () => {
     <>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>{userData?.nombreFarmacia || "Cargando..."} </Text>
+          <Text style={styles.title}>
+            {userData?.nombreFarmacia || "Cargando..."}{" "}
+          </Text>
           <Text style={styles.subtitle}>Solicitudes pendientes</Text>
           <Text style={styles.description}>
             Solicitudes de clientes de pedidos de medicamentos con receta
@@ -96,29 +117,38 @@ const Solicitudes = () => {
             </Text>
           ) : (
             requests.map((req, index) => {
-              const firstImage = Array.isArray(req?.images) && req.images.length > 0
-                ? req.images[0]
-                : null;
+              const firstImage = req?.thumb || null;
+              const fecha =
+                req?.createdAt && typeof req.createdAt.toDate === "function"
+                  ? `${req.createdAt
+                      .toDate()
+                      .toLocaleDateString()} - ${req.createdAt
+                      .toDate()
+                      .toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}hs`
+                  : "Sin fecha";
 
               return (
                 <View key={req?.id ?? index} style={styles.requestCard}>
                   <View style={styles.requestHeader}>
                     <Text style={styles.medicationName}>
                       {`Solicitud #${index + 1}`}
-                    </Text>                                        
+                    </Text>
                   </View>
 
                   {firstImage && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       onPress={() => {
                         setSelectedImage(firstImage);
                         setModalVisible(true);
                       }}
                     >
-                      <Image 
-                        source={{ uri: firstImage }} 
-                        style={styles.miniImage} 
-                        resizeMode="cover" 
+                      <Image
+                        source={{ uri: firstImage }}
+                        style={styles.miniImage}
+                        resizeMode="cover"
                       />
                       <Text style={styles.imageHint}>
                         (Presiona para ampliar la imagen)
@@ -126,31 +156,24 @@ const Solicitudes = () => {
                     </TouchableOpacity>
                   )}
 
-                  {/* Contenido principal: datos + botones */}
                   <View style={styles.infoRow}>
-                    {/* Columna izquierda - datos */}
+                    {/* Datos */}
                     <View style={styles.infoColumn}>
                       <Text style={styles.detailText}>
-                        <Text style={styles.detailText}>
-                          <Text style={styles.detailLabel}>Cliente: </Text>
-                          {req.user
-                            ? `${req.user.nombre ?? ""} ${req.user.apellido ?? ""}`.trim()
-                            : `Cliente #${index + 1}`} 
-                        </Text>
+                        <Text style={styles.detailLabel}>Cliente: </Text>
+                        {req.userName || `Cliente #${index + 1}`}
                       </Text>
                       <Text style={styles.detailText}>
                         <Text style={styles.detailLabel}>Ubicación: </Text>
-                        {req.user?.direccion ?? "Sin especificar"}
+                        {req.direccion ?? "Sin especificar"}
                       </Text>
                       <Text style={styles.detailText}>
                         <Text style={styles.detailLabel}>Fecha y hora: </Text>
-                        <Text>{req?.createdAt
-                          ? `${req.createdAt.toDate().toLocaleDateString()} - ${req.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}hs`
-                        : "Sin fecha"}</Text>
+                        {fecha}
                       </Text>
                     </View>
 
-                    {/* Columna derecha - botones */}
+                    {/* Botones */}
                     <View style={styles.buttonsColumn}>
                       <CotizacionButton
                         request={req}
@@ -161,7 +184,9 @@ const Solicitudes = () => {
                       <RechazarButton
                         request={req}
                         buttonStyle={styles.rejectButton}
-                        onConfirm={async (motivo) => await handleRejectConfirm(req, motivo)}
+                        onConfirm={async (motivo) =>
+                          await handleRejectConfirm(req, motivo)
+                        }
                       />
                     </View>
                   </View>
@@ -169,92 +194,91 @@ const Solicitudes = () => {
               );
             })
           )}
-        </View>                
+        </View>
       </ScrollView>
 
-      {/* Modal para ver imagen completa */}
-      <Modal 
-        visible={modalVisible} 
-        transparent 
-        animationType="fade" 
+      {/* Modal para imagen completa */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
         onRequestClose={() => setModalVisible(false)}
       >
-        <Pressable 
-          style={styles.modalBackground} 
+        <Pressable
+          style={styles.modalBackground}
           onPress={() => setModalVisible(false)}
         >
           {selectedImage && (
-            <Image 
-              source={{ uri: selectedImage }} 
-              style={styles.fullImage} 
-              resizeMode="contain" 
+            <Image
+              source={{ uri: selectedImage }}
+              style={styles.fullImage}
+              resizeMode="contain"
             />
           )}
         </Pressable>
       </Modal>
 
-      {/* Modal de cotización (componente separado) */}
+      {/* Modal de cotización */}
       <CotizacionForm
         visible={cotizacionModalVisible}
         onClose={() => setCotizacionModalVisible(false)}
         onSubmit={handleQuoteSubmit}
         request={selectedRequest}
       />
-
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: "#FAFAFA" 
+  container: {
+    flex: 1,
+    backgroundColor: "#FAFAFA",
   },
-  header: { 
+  header: {
     padding: 20,
     paddingBottom: 16,
     backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1, 
-    borderBottomColor: "#E0E0E0" 
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
   },
-  title: { 
-    fontSize: 28, 
-    fontWeight: "bold", 
-    color: "#1A1A1A" 
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1A1A1A",
   },
-  subtitle: { 
-    fontSize: 18, 
-    fontWeight: "600", 
-    color: theme.colors.primary, 
-    marginTop: 4 
+  subtitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: theme.colors.primary,
+    marginTop: 4,
   },
-  description: { 
-    fontSize: 14, 
-    color: "#666666", 
+  description: {
+    fontSize: 14,
+    color: "#666666",
     marginTop: 8,
-    lineHeight: 20 
+    lineHeight: 20,
   },
-  section: { 
-    padding: 20 
+  section: {
+    padding: 20,
   },
-  sectionTitle: { 
-    fontSize: 20, 
-    fontWeight: "600", 
-    color: "#1A1A1A", 
-    marginBottom: 16 
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#1A1A1A",
+    marginBottom: 16,
   },
-  noRequests: { 
-    color: "#999999", 
+  noRequests: {
+    color: "#999999",
     fontStyle: "italic",
     textAlign: "center",
     padding: 40,
-    fontSize: 16 
+    fontSize: 16,
   },
-  requestCard: { 
-    backgroundColor: "white", 
-    borderRadius: 12, 
-    padding: 16, 
-    marginBottom: 16, 
+  requestCard: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -267,23 +291,19 @@ const styles = StyleSheet.create({
   requestHeader: {
     marginBottom: 12,
   },
-  medicationName: { 
-    fontSize: 18, 
-    fontWeight: "bold", 
-    color: "#333333", 
-    marginBottom: 4 
+  medicationName: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333333",
+    marginBottom: 4,
   },
-  clientName: {
-    fontSize: 14,
-    color: "#666666",
+  miniImage: {
+    width: "25%",
+    alignSelf: "flex-start",
+    height: 350,
+    borderRadius: 8,
+    marginBottom: 8,
   },
-  miniImage: { 
-    width: "25%", 
-    alignSelf: "left",
-    height: 350, 
-    borderRadius: 8, 
-    marginBottom: 8 
-  },  
   imageHint: {
     fontSize: 12,
     color: "#50a3fbff",
@@ -315,16 +335,16 @@ const styles = StyleSheet.create({
     margin: 3,
     width: "100%",
   },
-  modalBackground: { 
-    flex: 1, 
-    backgroundColor: "rgba(0,0,0,0.9)", 
-    justifyContent: "center", 
-    alignItems: "center" 
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  fullImage: { 
-    width: "95%", 
-    height: "80%", 
-    borderRadius: 8 
+  fullImage: {
+    width: "95%",
+    height: "80%",
+    borderRadius: 8,
   },
 });
 

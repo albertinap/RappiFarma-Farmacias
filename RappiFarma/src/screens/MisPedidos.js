@@ -40,7 +40,7 @@ const MisPedidos = () => {
             .filter((offer) => {
               const estado = offer?.state?.toLowerCase();
               const estadoEnvio = offer?.envioState?.toLowerCase();
-              return estado === "aceptada" && estadoEnvio !== "entregado";
+              return estado === "aceptada" && estadoEnvio !== "entregado" && offer?.farmacia === userData?.nombreFarmacia;
             })
             .map((offer, index) => {     
 

@@ -36,9 +36,12 @@ const Pendientes = () => {
           </Text>
         ) : (
           (offers || [])
-            .filter((offer) => offer?.state === "Pendiente") //acá si el usuario acepta el state cambia de pendiente a aceptada
+            .filter(
+              (offer) =>
+              offer?.state === "Pendiente" && offer?.farmacia === userData?.nombreFarmacia
+            )
             .map((offer, index) => {     
-            console.log("!!!!!!OFFER DATA:", offer); 
+            console.log("!!!!!!OFFER DATA:", offer);
                   
             return (
               <View
