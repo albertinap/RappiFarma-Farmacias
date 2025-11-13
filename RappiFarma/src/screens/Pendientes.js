@@ -4,9 +4,20 @@ import { listenPendingOffers } from "../features/requests/listen";
 import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
 
-const Pendientes = () => {  
+const Pendientes = ({ onCountChange }) => {  
   const [offers, setOffers] = useState([]);
   const userData = useUser(); //datos de la farmacia que los busco una única vez
+
+  // Este efecto actualiza el count cada vez que cambian las offers
+  useEffect(() => {
+    if (Array.isArray(offers)) {
+      const pendientes = offers.filter(
+              (offer) =>
+              offer?.state === "Pendiente" && offer?.farmacia === userData?.nombreFarmacia
+      );
+      onCountChange("Historial", pendientes.length);
+    }
+  }, [offers, onCountChange]);
 
   useEffect(() => {
     const unsub = listenPendingOffers(setOffers);

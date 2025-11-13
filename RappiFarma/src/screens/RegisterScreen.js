@@ -29,6 +29,10 @@ export default function RegisterScreen({ navigation }) {
       Toast.show({ type: "error", text1: "Contraseña mínima 6 caracteres" });
       return;
     }
+    if (!/^\d+$/.test(tel)) {
+      Toast.show({ type: "error", text1: "El teléfono debe contener solo números" });
+      return;
+    }
 
     try {
       setLoading(true);

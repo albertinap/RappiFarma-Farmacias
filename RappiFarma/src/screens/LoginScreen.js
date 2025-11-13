@@ -22,7 +22,7 @@ export default function LoginScreen({ navigation }) {
       navigation.navigate("Home"); 
     } catch (e) {      
       const map = {
-        "auth/invalid-credential": "Credenciales inválidas",
+        "auth/invalid-credential": "Usuario o contraseña incorrectos",
         "auth/user-not-found": "Usuario no encontrado",
         "auth/wrong-password": "Contraseña incorrecta",
         "auth/too-many-requests": "Demasiados intentos. Probá más tarde",
@@ -37,7 +37,7 @@ export default function LoginScreen({ navigation }) {
       setLoading(false);
     }
   };
-
+  //el usuario y contraseña no encontrados no los tira más, por motivos de seguridad (firebase)
 
   return (
     <View style={globalStyles.container}>
