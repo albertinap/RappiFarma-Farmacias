@@ -92,7 +92,7 @@ export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
     farmacia: nombreFarmacia || "Farmacia desconocida",
     detalle: motivo,
     state: "Rechazada",
-    createdAt: serverTimestamp(),
+    timeStamp: serverTimestamp(),
   });
 }
 
