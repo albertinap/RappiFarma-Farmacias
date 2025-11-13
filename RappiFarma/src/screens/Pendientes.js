@@ -41,8 +41,6 @@ const Pendientes = () => {
               offer?.state === "Pendiente" && offer?.farmacia === userData?.nombreFarmacia
             )
             .map((offer, index) => {     
-            console.log("!!!!!!OFFER DATA:", offer);
-                  
             return (
               <View
                 key={offer?.id ?? String(Math.random())}

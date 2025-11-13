@@ -16,6 +16,7 @@ const MisPedidos = () => {
     };
   }, []);
 
+
   return (
     <ScrollView style={styles.container}>
       {/* Header con el nombre de la farmacia */}
