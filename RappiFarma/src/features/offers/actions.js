@@ -1,8 +1,16 @@
 import { auth, db } from "../../lib/firebase";
-import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc,  deleteDoc} from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
 import Toast from "react-native-toast-message";
 
-//esta función crea la oferta a partir de la información de la cotización, y elimina la request base
+// Crea la oferta a partir de la información de la cotización
 export async function createOffer(cotizacionData) {
   const user = auth.currentUser;
   if (!user) throw new Error("NO_AUTENTICADO");
@@ -37,7 +45,7 @@ export async function createOffer(cotizacionData) {
     tiempoEspera,            // minutos
 
     // datos derivados
-    requestId, 
+    requestId,
     userId,                  // dueño del pedido
     farmacia: farmaciaNombre,
     direccion: farmaciaDireccion,
@@ -48,8 +56,7 @@ export async function createOffer(cotizacionData) {
     timeStamp: serverTimestamp(),
   };
 
-   try {
-    // Crear la oferta
+  try {
     const ref = await addDoc(collection(db, "offers"), payload);
     console.log("✅ Oferta creada con ID:", ref.id);
 
@@ -58,7 +65,7 @@ export async function createOffer(cotizacionData) {
       text1: "Cotización enviada",
       text2: `Monto total: $ ${cotizacionData.montoTotal.toFixed(2)}`,
       position: "top",
-    });                  
+    });
     return { offerId: ref.id };
   } catch (error) {
     console.error("Error en createOffer:", error);
@@ -71,21 +78,22 @@ export async function createOffer(cotizacionData) {
   }
 }
 
+// Registrar rechazo SIN borrar la request master
 export async function rechazarSolicitud(request, nombreFarmacia, motivo) {
-  if (!request?.id) throw new Error("Solicitud inválida");
+  if (!request) throw new Error("Solicitud inválida");
 
-  //Guarda un registro del rechazo en 'offers' (el detalle es el motivo de rechazo")
+  // ojo: en inbox el id del doc es el del puntero;
+  // el id real de la request viene en request.requestId
+  const realRequestId = request.requestId || request.id;
+
   await addDoc(collection(db, "offers"), {
-    requestId: request.id,
-    userId: request.userId,
+    requestId: realRequestId,
+    userId: request.userId ?? null,
     farmacia: nombreFarmacia || "Farmacia desconocida",
     detalle: motivo,
     state: "Rechazada",
     createdAt: serverTimestamp(),
   });
-
-  //Elimino la solicitud original de 'requests'
-  await deleteDoc(doc(db, "requests", request.id));
 }
 
 export async function cambiarEnvioState(offerId, nuevoEstado) {
