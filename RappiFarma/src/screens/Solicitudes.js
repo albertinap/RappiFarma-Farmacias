@@ -20,7 +20,7 @@ import { auth, db } from "../lib/firebase";
 import { listenInboxRequests } from "../features/inbox/listen";
 import { doc, getDoc } from "firebase/firestore";
 
-const Solicitudes = ({ onCountChange }) => {
+const Solicitudes = () => {
   const [requests, setRequests] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);

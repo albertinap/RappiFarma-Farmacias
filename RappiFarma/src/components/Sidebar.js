@@ -3,13 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { theme } from "../styles/theme";
 import Badge from "../components/Badge";
 
-/*Active, cuál de las pantallas está abierta en un instante
-counts: cuántos elementos tiene cada pantalla
-newFlags: booleanos para las notificaciones (if true entonces naranja)
-onOpenScreen: para cambiar la pantalla activa*/
- 
 export default function Sidebar({ active, counts, newFlags, onOpenScreen }) {
-  const menuItems = ["Solicitudes", "Pendientes", "Mis pedidos", "Historial"];
+  const menuItems = [
+    { key: "Solicitudes", label: "Solicitudes" },
+    { key: "Pendientes", label: "Pendientes" },
+    { key: "MisPedidos", label: "Mis pedidos" },
+    { key: "Historial", label: "Historial" }
+  ];
 
   return (
     <View style={styles.sidebar}>
@@ -17,20 +17,20 @@ export default function Sidebar({ active, counts, newFlags, onOpenScreen }) {
 
       {menuItems.map((item) => (
         <TouchableOpacity
-          key={item}
-          style={[styles.menuItem, active === item && styles.activeItem]}
-          onPress={() => onOpenScreen(item)}
+          key={item.key}
+          style={[styles.menuItem, active === item.key && styles.activeItem]}
+          onPress={() => onOpenScreen(item.key)}
         >
           <View style={styles.menuRow}>
             <Text
-              style={[styles.menuText, active === item && styles.activeText]}
+              style={[styles.menuText, active === item.key && styles.activeText]}
             >
-              {item}
+              {item.label}
             </Text>
           
             <Badge
-              count={counts?.[item] ?? 0}
-              isNew={!!newFlags?.[item]}
+              count={counts?.[item.key] ?? 0}
+              isNew={!!newFlags?.[item.key]}
             />
             
           </View>

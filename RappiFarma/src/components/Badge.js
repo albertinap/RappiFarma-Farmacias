@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { Pressable, Text, StyleSheet, View } from "react-native";
 import { theme } from "../styles/theme";
 
 /**
@@ -8,27 +8,23 @@ import { theme } from "../styles/theme";
  * - Vuelve a gris cuando se presiona.
  * @param {number} count - número a mostrar de elementos 
  * @param {boolean} hidden - si se debe ocultar completamente
+ * @param {boolean} isNew - si debe mostrarse como nuevo (naranja)
  */
-export default function Badge({ count = 0, hidden = false }) {
-  const [isNew, setIsNew] = useState(false);
-  const [prevCount, setPrevCount] = useState(count);
+export default function Badge({ count = 0, hidden = false, isNew = false }) {
+  const [isHighlighted, setIsHighlighted] = useState(isNew);
 
-  // Detecta cambios en el número de pedidos
   useEffect(() => {
-    if (count !== prevCount) {
-      setIsNew(true); // activa color naranja
-      setPrevCount(count);
-    }
-  }, [count]);
+    setIsHighlighted(isNew);
+  }, [isNew]);
 
-  if (hidden || count <= 0) return null;
+  if (hidden) return null; // ocultar si count es 0 o hidden=true
 
   return (
     <Pressable
-      onPress={() => setIsNew(false)} // al tocarlo vuelve a gris
+      onPress={() => setIsHighlighted(false)} // al tocarlo vuelve a gris
       style={[
         styles.badge,
-        isNew ? styles.badgeNew : styles.badgeDefault,
+        isHighlighted ? styles.badgeNew : styles.badgeDefault,
       ]}
     >
       <Text style={styles.text}>{count}</Text>
@@ -43,14 +39,14 @@ const styles = StyleSheet.create({
     borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
-    marginLeft: 8,
+    marginLeft: 6,
     paddingHorizontal: 5,
   },
   badgeDefault: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#B0B0B0", // gris
   },
   badgeNew: {
-    backgroundColor: theme.colors.primary || "#FF7A00", // tu naranja
+    backgroundColor: theme.colors.primary, // naranja
   },
   text: {
     color: "#fff",

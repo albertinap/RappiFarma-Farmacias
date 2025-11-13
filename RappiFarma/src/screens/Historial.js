@@ -4,19 +4,9 @@ import { listenPendingOffers } from "../features/requests/listen";
 import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
 
-const Historial = ({ onCountChange }) => {  
+const Historial = () => {  
   const [offers, setOffers] = useState([]);
   const userData = useUser(); //datos de la farmacia que los busco una única vez
-
-  useEffect(() => {
-    if (typeof onCountChange === "function" && Array.isArray(offers)) {
-      const entregados = offers.filter(
-        (offer) => offer?.envioState === "Entregado"
-      );
-      onCountChange(entregados.length); // 👈 solo pasamos el número
-    }
-  }, [offers, onCountChange]);
-
 
   useEffect(() => {
     const unsub = listenPendingOffers(setOffers);
@@ -48,7 +38,6 @@ const Historial = ({ onCountChange }) => {
           (offers || [])
             .filter((offer) => offer?.envioState === "Entregado" && offer?.farmacia === userData?.nombreFarmacia)
             .map((offer, index) => {     
-            console.log("!!!!!!OFFER DATA:", offer); 
                   
             return (
               <View

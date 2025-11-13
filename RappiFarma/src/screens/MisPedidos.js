@@ -5,7 +5,7 @@ import { useUser } from "../context/UserContext";
 import { theme } from "../styles/theme"; 
 import EstadoPedido from "../components/EstadoPedido";
 
-const MisPedidos = ({ onCountChange }) => {  
+const MisPedidos = () => {  
   const [offers, setOffers] = useState([]);
   const userData = useUser(); //datos de la farmacia que los busco una única vez
 
@@ -16,24 +16,6 @@ const MisPedidos = ({ onCountChange }) => {
     };
   }, []);
 
-  // avisar al padre (homeScreen) cuando cambie el conteo
-  useEffect(() => {
-    if (onCountChange && userData?.nombreFarmacia) {
-      const count = (offers || []).filter((offer) => {
-        const estado = offer?.state?.toLowerCase();
-        const estadoEnvio = offer?.envioState?.toLowerCase();
-        return (
-          estado === "aceptada" &&
-          estadoEnvio !== "entregado" &&
-          offer?.farmacia === userData?.nombreFarmacia
-        );
-      }).length;
-
-      onCountChange(count);
-    }
-  }, [offers, userData?.nombreFarmacia]); 
-
-  
 
   return (
     <ScrollView style={styles.container}>
