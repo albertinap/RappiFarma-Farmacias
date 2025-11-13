@@ -46,7 +46,7 @@ const Historial = ({ onCountChange }) => {
           </Text>
         ) : (
           (offers || [])
-            .filter((offer) => offer?.envioState === "Entregado")
+            .filter((offer) => offer?.envioState === "Entregado" && offer?.farmacia === userData?.nombreFarmacia)
             .map((offer, index) => {     
             console.log("!!!!!!OFFER DATA:", offer); 
                   

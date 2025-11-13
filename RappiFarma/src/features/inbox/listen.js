@@ -1,36 +1,57 @@
-// features/inbox/listen.js
 import { db } from "../../lib/firebase";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+  Timestamp,
+} from "firebase/firestore";
+
+let unsubscribe = null;
+let interval = null;
 
 export function listenInboxRequests(uidFarmacia, cb) {
   if (!uidFarmacia) {
     console.error("listenInboxRequests: uidFarmacia indefinido.");
     return () => {};
   }
-  const col = collection(db, "inbox", uidFarmacia, "requests");
-  const q = query(col, orderBy("createdAt", "desc"));
-  return onSnapshot(
-    q,
-    (snap) => {
-      const rows = snap.docs.map((d) => {
-        const x = d.data();
-        return {
-          id: d.id,
-          requestId: x.requestId ?? d.id,
-          createdAt: x.createdAt ?? null,
-          thumb: x.thumb ?? null,
-          userName: x.userName ?? "Cliente",
-          direccion: x.direccion ?? "Sin dirección",
-        };
-      });
-      cb(rows);
-    },
-    (error) => {
-      console.error("Error en snapshot listener de inbox:", error);
-      cb([]);
-    }
-  );
+
+  function start() {
+    const now = Timestamp.now();
+    const col = collection(db, "inbox", uidFarmacia, "requests");
+    const q = query(
+      col,
+      where("expiresAt", ">", now)
+    );
+
+    unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        cb(rows);
+      },
+      (error) => {
+        console.error("Error en snapshot listener de inbox:", error);
+        cb([]);
+      }
+    );
+  }
+
+  // iniciar primera vez
+  start();
+
+  // reiniciar cada N segundos
+  interval = setInterval(() => {
+    if (unsubscribe) unsubscribe();
+    start();
+  }, 5 * 1000);
+
+  // cleanup
+  return () => {
+    if (unsubscribe) unsubscribe();
+    if (interval) clearInterval(interval);
+  };
 }
 
-// opcional: también exportá por defecto para evitar confusiones
 export default listenInboxRequests;
