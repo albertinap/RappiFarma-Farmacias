@@ -1,7 +1,8 @@
-
 import React, { useState } from "react";
 import { TouchableOpacity, Text, Modal, View, TextInput, StyleSheet, Alert } from "react-native";
 import { theme } from "../../styles/theme";
+import { auth, db } from "../../lib/firebase";
+import { doc, deleteDoc } from "firebase/firestore";
 
 const RechazarButton = ({ request, onConfirm }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -9,14 +10,36 @@ const RechazarButton = ({ request, onConfirm }) => {
 
   const handlePress = () => setModalVisible(true);
 
-  const handleConfirm = () => {
-    if (!motivo.trim()) {
+  const handleConfirm = async () => {
+    const motivoLimpio = motivo.trim();
+    if (!motivoLimpio) {
       Alert.alert("Error", "Por favor ingresá un motivo de rechazo");
       return;
     }
-    onConfirm(motivo.trim());
-    setMotivo("");
-    setModalVisible(false);
+
+    const uidFarmacia = auth.currentUser?.uid;
+    const requestId = request?.requestId || request?.id;
+
+    if (!uidFarmacia || !requestId) {
+      Alert.alert("Error", "No se pudo identificar el pedido o la farmacia");
+      return;
+    }
+
+    try {
+      // 1) Borrar puntero de inbox de esta farmacia
+      const ptrRef = doc(db, "inbox", uidFarmacia, "requests", requestId);
+      await deleteDoc(ptrRef);
+
+      // 2) Notificar al padre para que haga lo que ya hacía (guardar rechazo, etc.)
+      onConfirm?.(motivoLimpio);
+
+      // 3) Limpiar UI
+      setMotivo("");
+      setModalVisible(false);
+    } catch (e) {
+      console.error("Error al rechazar pedido:", e);
+      Alert.alert("Error", "No se pudo rechazar el pedido");
+    }
   };
 
   const handleCancel = () => {
@@ -37,7 +60,7 @@ const RechazarButton = ({ request, onConfirm }) => {
             <TextInput
               style={styles.input}
               placeholder="Ejemplo: Medicamento fuera de stock"
-              placeholderTextColor = {theme.colors.textMuted}
+              placeholderTextColor={theme.colors.textMuted}
               multiline
               numberOfLines={4}
               value={motivo}
@@ -121,7 +144,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#d9d9d9ff", borderWidth: 1, borderColor: "#d9d9d9ff"
+    backgroundColor: "#d9d9d9ff",
+    borderWidth: 1,
+    borderColor: "#d9d9d9ff"
   },
   confirm: {
     backgroundColor: theme.colors.error,
