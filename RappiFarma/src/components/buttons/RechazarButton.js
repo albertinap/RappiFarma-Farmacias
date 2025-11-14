@@ -3,6 +3,7 @@ import { TouchableOpacity, Text, Modal, View, TextInput, StyleSheet, Alert } fro
 import { theme } from "../../styles/theme";
 import { auth, db } from "../../lib/firebase";
 import { doc, deleteDoc } from "firebase/firestore";
+import Toast from "react-native-toast-message";
 
 const RechazarButton = ({ request, onConfirm }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -13,7 +14,11 @@ const RechazarButton = ({ request, onConfirm }) => {
   const handleConfirm = async () => {
     const motivoLimpio = motivo.trim();
     if (!motivoLimpio) {
-      Alert.alert("Error", "Por favor ingresá un motivo de rechazo");
+      Toast.show({
+              type: "error",
+              text1: "Debe ingresar un motivo de rechazo.",
+              position: "top",
+            });
       return;
     }
 

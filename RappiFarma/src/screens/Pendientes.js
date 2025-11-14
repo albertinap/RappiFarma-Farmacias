@@ -162,10 +162,11 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   noPedidos: {
-    color: theme.colors.textMuted,
+    color: "#999999",
+    fontStyle: "italic",
     textAlign: "center",
     padding: 40,
-    fontSize: 16,
+    fontSize: 16, 
   },
   pedidoCard: {
     backgroundColor: "#fff",
