@@ -16,7 +16,6 @@ const MisPedidos = () => {
     };
   }, []);
 
-
   return (
     <ScrollView style={styles.container}>
       {/* Header con el nombre de la farmacia */}
@@ -158,6 +157,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     color: "#666666",
+    marginTop: 8,
     lineHeight: 20,
   },
   section: {
@@ -170,7 +170,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   noPedidos: {
-    color: theme.colors.textMuted,
+    color: "#999999",
+    fontStyle: "italic",
     textAlign: "center",
     padding: 40,
     fontSize: 16,

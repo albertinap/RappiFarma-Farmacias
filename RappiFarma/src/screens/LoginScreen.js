@@ -30,8 +30,7 @@ export default function LoginScreen({ navigation }) {
       };
       Toast.show({
         type: "error",
-        text1: map[e?.code] || "Error al iniciar sesión",
-        text2: e.message || "Intentá nuevamente.",
+        text1: map[e?.code] || "Error al iniciar sesión",        
       });      
     } finally {
       setLoading(false);
